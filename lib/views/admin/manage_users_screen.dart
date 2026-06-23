@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'Add Users/add_parent_screen.dart';
+import 'Add Users/add_specialist_screen.dart';
 
 class ManageUsersScreen extends StatefulWidget {
   const ManageUsersScreen({super.key});
@@ -151,14 +153,103 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
                         // Edit
                         IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.edit, color: Color(0xFF5B9EF5)),
+                          onPressed: () {
+                            if (_selectedTab == 0) {
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AddParentScreen(
+                                    parentData: {
+                                      'childName': user['name'],
+                                      'childAge': '7',
+                                      'autismLevel': 'Moderate',
+                                      'email': 'parent@test.com',
+                                      'password': '123456',
+                                      'specialist': 'Dr. Ahmad',
+                                    },
+                                  ),
+                                ),
+                              );
+
+                            } else {
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AddSpecialistScreen(
+                                    specialistData: {
+                                      'name': user['name'],
+                                      'email': 'specialist@test.com',
+                                      'password': '123456',
+                                      'specialty': 'Speech Therapy',
+                                    },
+                                  ),
+                                ),
+                              );
+
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Color(0xFF5B9EF5),
+                          ),
                         ),
 
                         // Delete
                         IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.delete, color: Color(0xFFDC2626)),
+                          onPressed: () {
+
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+
+                                  title: const Text('Delete User'),
+
+                                  content: const Text(
+                                    'Are you sure you want to delete this user?',
+                                  ),
+
+                                  actions: [
+
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('No'),
+                                    ),
+
+                                    ElevatedButton(
+                                      onPressed: () {
+
+                                        setState(() {
+                                          users.removeAt(index);
+                                        });
+
+                                        Navigator.pop(context);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: const Text(
+                                        'Yes',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+
+                                  ],
+                                );
+                              },
+                            );
+
+                          },
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Color(0xFFDC2626),
+                          ),
                         ),
                       ],
                     ),
@@ -177,7 +268,28 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           width: double.infinity,
           height: 55,
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              if (_selectedTab == 0) {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddParentScreen(),
+                  ),
+                );
+
+              } else {
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddSpecialistScreen(),
+                  ),
+                );
+
+              }
+
+            },
             icon: const Icon(Icons.add),
             label: Text(_selectedTab == 0 ? 'Add Parent' : 'Add Specialist'),
             style: ElevatedButton.styleFrom(
