@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../admin/admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,10 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Logo (تم تحديث مسار الصورة هنا)
               Image.asset(
-                'assets/images/lgo.png',
-                height: 110,
+                'assets/images/ggoo.png',
+                height: 150,
                 color: const Color(0xFFF2F7FF),
-                colorBlendMode: BlendMode.dstATop,
+                colorBlendMode: BlendMode.modulate,
               ),
 
               const SizedBox(height: 12),
@@ -162,6 +163,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
+                    if (_phoneController.text == '0999999999' &&
+                        _passwordController.text == '123456') {
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DashboardScreen(),
+                        ),
+                      );
+
+                    } else {
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Wrong phone number or password'),
+                        ),
+                      );
+
+                    }
                     // سنضيف منطق الـ Login لاحقاً
                   },
                   style: ElevatedButton.styleFrom(
