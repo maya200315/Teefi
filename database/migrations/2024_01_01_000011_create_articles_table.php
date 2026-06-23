@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('content');
-            $table->date('date');
+            $table->date('datetime');
             $table->foreignId('Userid')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

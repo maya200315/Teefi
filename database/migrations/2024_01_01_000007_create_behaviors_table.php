@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->date('date');
             $table->string('notes');
-            $table->date('datetime');
+            // $table->date('datetime');
             $table->foreignId('Behavior_typeid')->constrained('behavior_types')->onDelete('cascade');
             $table->foreignId('Childid')->constrained('children')->onDelete('cascade');
             $table->timestamps();

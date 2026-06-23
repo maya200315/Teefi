@@ -9,9 +9,9 @@ class Article extends Model
 {
     protected $table = 'articles';
 
-    protected $fillable = ['title', 'content', 'date', 'Userid'];
+    protected $fillable = ['title', 'content', 'datetime', 'Userid'];
 
-    protected $casts = ['date' => 'date'];
+    protected $casts = ['datetime' => 'datetime'];
 
     public function user(): BelongsTo
     {

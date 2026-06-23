@@ -13,7 +13,7 @@ class Behavior extends Model
         'date',
         'notes',
         'datetime',
-        'Behavior_typeid',
+        // 'Behavior_typeid',
         'Childid',
     ];
 
