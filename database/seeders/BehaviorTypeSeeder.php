@@ -11,15 +11,15 @@ class BehaviorTypeSeeder extends Seeder
     {
         DB::table('behavior_types')->insert([
             // Created by Specialist Dr. Sara (user 2)
-            ['name' => 'Self-Stimulatory (Stimming)',  'Userid' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Aggression',                   'Userid' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Eye Contact',                  'Userid' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Verbal Communication',         'Userid' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'التحفيز الذاتي(Stimming)',  'Userid' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'العدوان',                   'Userid' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'الاتصال البصري ',                  'Userid' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'التواصل اللفظي',         'Userid' => 2, 'created_at' => now(), 'updated_at' => now()],
             // Created by Specialist Dr. Khaled (user 3)
-            ['name' => 'Social Interaction',           'Userid' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Meltdown',                     'Userid' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Repetitive Behavior',          'Userid' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Task Completion',              'Userid' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'التفاعل الاجتماعي',           'Userid' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'انهيار السلوك',                     'Userid' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'السلوك المتكرر',          'Userid' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'إنهاء المهمة',              'Userid' => 3, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

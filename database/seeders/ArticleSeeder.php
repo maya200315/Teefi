@@ -11,24 +11,26 @@ class ArticleSeeder extends Seeder
     {
         DB::table('articles')->insert([
             [
-                'title'      => 'Understanding Autism Spectrum Disorder',
-                'content'    => 'Autism Spectrum Disorder (ASD) is a complex developmental condition involving persistent challenges with social communication, restricted interests, and repetitive behavior.',
+                'title'      => 'فهم اضطراب طيف التوحد
+',
+                'content'    => 'اضطراب طيف التوحد (ASD) هو حالة تطويرية معقدة تتضمن تحديات مستمرة في التواصل الاجتماعي، واهتمامات محدودة، وسلوكيات متكررة.
+',
                 'datetime'   => '2024-01-10',
                 'Userid'     => 2, // Specialist: Dr. Sara
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'title'      => 'PECS: A Communication Tool for Children with Autism',
-                'content'    => 'The Picture Exchange Communication System (PECS) is an augmentative and alternative communication strategy used with children and adults who have limited or no speech ability.',
+                'title'      => 'PECS:أداة تواصل للأطفال المصابين بالتوحد',
+                'content'    => 'نظام تبادل الصور (PECS) هو استراتيجية تكميلية وبدائل للتواصل تُستخدم مع الأطفال والبالغين الذين يعانون من قلة أو عدم وجود قدرة على الكلام.',
                 'datetime'   => '2024-02-15',
                 'Userid'     => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'title'      => 'Applied Behavior Analysis in Autism Therapy',
-                'content'    => 'Applied Behavior Analysis (ABA) is a therapy based on the science of learning and behavior. It helps increase useful skills and decrease behaviors that may interfere with learning.',
+                'title'      => 'تحليل السلوك التطبيقي في علاج التوحد',
+                'content'    => 'تحليل السلوك التطبيقي (ABA) هو علاج يعتمد على علم التعلم والسلوك. يساعد في زيادة المهارات المفيدة وتقليل السلوكيات التي قد تعرقل التعلم.',
                 'datetime'   => '2024-03-20',
                 'Userid'     => 3, // Specialist: Dr. Khaled
                 'created_at' => now(),

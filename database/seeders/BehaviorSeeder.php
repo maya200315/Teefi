@@ -10,24 +10,24 @@ class BehaviorSeeder extends Seeder
     public function run(): void
     {
         DB::table('behaviors')->insert([
-            // Omar Ali (child 1)
-            ['date' => '2024-05-01', 'notes' => 'Showed stimming for 10 minutes during class.',            'Behavior_typeid' => 1, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-02', 'notes' => 'Made eye contact with teacher twice today.',              'Behavior_typeid' => 3, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-03', 'notes' => 'Used 3 PECS cards to request food independently.',        'Behavior_typeid' => 4, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-04', 'notes' => 'Completed task without prompting — great progress!',     'Behavior_typeid' => 8, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-05', 'notes' => 'Had a meltdown after routine change.',                   'Behavior_typeid' => 6, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
+            // عمر علي (الطفل الأول - Child 1)
+            ['date' => '2024-05-01', 'notes' => 'أظهر سلوكاً تكرارياً للاستثارة الذاتية لمدة 10 دقائق خلال الحصة.', 'Behavior_typeid' => 1, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-02', 'notes' => 'تواصل بصرياً مع المعلم مرتين اليوم.', 'Behavior_typeid' => 3, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-03', 'notes' => 'استخدم 3 بطاقات من نظام التواصل بتبادل الصور لطلب الطعام بشكل مستقل.', 'Behavior_typeid' => 4, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-04', 'notes' => 'أنجز المهمة دون الحاجة لتوجيه أو مساعدة — تقدم رائع!', 'Behavior_typeid' => 8, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-05', 'notes' => 'أصيب بنوبة غضب وانفعال حاد بعد تغيير الروتين المعتاد.', 'Behavior_typeid' => 6, 'Childid' => 1, 'created_at' => now(), 'updated_at' => now()],
 
-            // Lina Ali (child 2)
-            ['date' => '2024-05-01', 'notes' => 'Aggressive behavior toward peers during group activity.', 'Behavior_typeid' => 2, 'Childid' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-02', 'notes' => 'Engaged in 5 minutes of social play with another child.', 'Behavior_typeid' => 5, 'Childid' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-03', 'notes' => 'Repetitive hand-flapping observed for 20 minutes.',      'Behavior_typeid' => 7, 'Childid' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-04', 'notes' => 'Communicated need verbally for the first time.',         'Behavior_typeid' => 4, 'Childid' => 2, 'created_at' => now(), 'updated_at' => now()],
+            // لينا علي (الطفل الثاني - Child 2)
+            ['date' => '2024-05-01', 'notes' => 'أظهرت سلوكاً عدوانياً تجاه الأقران أثناء النشاط الجماعي.', 'Behavior_typeid' => 2, 'Childid' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-02', 'notes' => 'شاركت في اللعب الاجتماعي مع طفل آخر لمدة 5 دقائق.', 'Behavior_typeid' => 5, 'Childid' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-03', 'notes' => 'لوحظ سلوك ترفيف اليدين المتكرر لمدة 20 دقيقة.', 'Behavior_typeid' => 7, 'Childid' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-04', 'notes' => 'عبّرت عن حاجتها لفظياً للمرة الأولى.', 'Behavior_typeid' => 4, 'Childid' => 2, 'created_at' => now(), 'updated_at' => now()],
 
-            // Youssef Hassan (child 3)
-            ['date' => '2024-05-01', 'notes' => 'Calm session, participated in group activity.',           'Behavior_typeid' => 5, 'Childid' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-02', 'notes' => 'Task completion improved significantly today.',           'Behavior_typeid' => 8, 'Childid' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-03', 'notes' => 'Meltdown triggered by loud noise in the hallway.',       'Behavior_typeid' => 6, 'Childid' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['date' => '2024-05-04', 'notes' => 'Stimming reduced compared to last week.',                'Behavior_typeid' => 1, 'Childid' => 3, 'created_at' => now(), 'updated_at' => now()],
+            // يوسف حسن (الطفل الثالث - Child 3)
+            ['date' => '2024-05-01', 'notes' => 'جلسة هادئة، وشارك في النشاط الجماعي.', 'Behavior_typeid' => 5, 'Childid' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-02', 'notes' => 'تحسن معدل إنجاز المهام بشكل ملحوظ اليوم.', 'Behavior_typeid' => 8, 'Childid' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-03', 'notes' => 'أصيب بنوبة غضب وانفعال حاد بسبب ضوضاء عالية في الممر.', 'Behavior_typeid' => 6, 'Childid' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['date' => '2024-05-04', 'notes' => 'انخفضت السلوكيات التكرارية مقارنة بالأسبوع الماضي.', 'Behavior_typeid' => 1, 'Childid' => 3, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }
