@@ -1,17 +1,17 @@
 <?php
 
-use App\Http\Controllers\Api\Admin\AdminDashboardController;
-use App\Http\Controllers\Api\Admin\ManageUsersController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\ManageUsersController;
 use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [LoginController::class, 'login']);
+ Route::post('/login', [LoginController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
- 
-    // ── Dashboard ──────────────────────────────────────────────────────────
-    // GET /api/admin/dashboard
-    Route::get('dashboard', [AdminDashboardController::class, 'index']);
+
+    // ── Dashboard ──
+    // واجهة1 
+    Route::get('/dashboard', [AdminDashboardController::class, 'index']);
  
     //  Manage Users 
 
