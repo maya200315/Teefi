@@ -1,12 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:teefi/views/admin/manage_users_screen.dart';
 import 'manage_content_screen.dart';
+import 'package:teefi/services/dashboard_service.dart'; // إضافة الـ Import الجديد
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  Map<String, dynamic>? dashboardData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadDashboard();
+  }
+
+  Future<void> loadDashboard() async {
+    try {
+      final data = await DashboardService().getDashboardData();
+
+      setState(() {
+        dashboardData = data['data'];
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // إضافة فحص حالة التحميل في بداية الـ build
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFF2F7FF),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FF),
 
@@ -54,29 +94,29 @@ class DashboardScreen extends StatelessWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1.4,
 
-              children: const [
+              children: [ // إزالة const من هنا لتمرير القيم الديناميكية
 
                 _StatCard(
                   title: 'Parents',
-                  count: '12',
+                  count: '${dashboardData?['parents_count'] ?? 0}', // استبدال الرقم الثابت
                   icon: Icons.people,
                 ),
 
                 _StatCard(
                   title: 'Specialists',
-                  count: '5',
+                  count: '${dashboardData?['specialists_count'] ?? 0}', // استبدال الرقم الثابت
                   icon: Icons.medical_services,
                 ),
 
                 _StatCard(
                   title: 'Articles',
-                  count: '24',
+                  count: '${dashboardData?['articles_count'] ?? 0}', // استبدال الرقم الثابت
                   icon: Icons.article,
                 ),
 
                 _StatCard(
                   title: 'PECS Cards',
-                  count: '48',
+                  count: '${dashboardData?['pecs_cards_count'] ?? 0}', // استبدال الرقم الثابت
                   icon: Icons.style,
                 ),
               ],
@@ -119,7 +159,7 @@ class DashboardScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ManageContentScreen(initialTab: 1), // يفتح المقالات
+                    builder: (_) => const ManageContentScreen(initialTab: 1),
                   ),
                 );
               },
@@ -135,7 +175,7 @@ class DashboardScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ManageContentScreen(initialTab: 0), // هنا التعديل: يمرر 0 ليفتح الـ PECS مباشرة
+                    builder: (_) => const ManageContentScreen(initialTab: 0),
                   ),
                 );
               },
