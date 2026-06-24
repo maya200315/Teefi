@@ -11,23 +11,16 @@ use Illuminate\Validation\ValidationException;
 
 class ManageUsersController extends Controller
 {
-    // Role IDs (must match your roles table)
+    // Role IDs 
     private const ROLE_SPECIALIST = 2;
     private const ROLE_PARENT     = 3;
 
-    // -------------------------------------------------------------------------
     // Helper: resolve role id from type string
-    // -------------------------------------------------------------------------
     private function roleId(string $type): int
     {
         return $type === 'specialists' ? self::ROLE_SPECIALIST : self::ROLE_PARENT;
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/admin/users/{type}
-    // type = "parents" | "specialists"
-    // Returns list + total count
-    // -------------------------------------------------------------------------
     public function index(string $type): JsonResponse
     {
         if (!in_array($type, ['parents', 'specialists'])) {
@@ -47,10 +40,6 @@ class ManageUsersController extends Controller
         ]);
     }
 
-    // -------------------------------------------------------------------------
-    // GET /api/admin/users/{type}/{id}
-    // Show a single user
-    // -------------------------------------------------------------------------
     public function show(string $type, int $id): JsonResponse
     {
         if (!in_array($type, ['parents', 'specialists'])) {
@@ -68,12 +57,7 @@ class ManageUsersController extends Controller
             'data'    => $user->only('id', 'name', 'mobile_number', 'created_at'),
         ]);
     }
-
-    // -------------------------------------------------------------------------
-    // POST /api/admin/users/{type}
-    // Create a new parent or specialist
-    // -------------------------------------------------------------------------
-    public function store(Request $request, string $type): JsonResponse
+  public function store(Request $request, string $type): JsonResponse
     {
         if (!in_array($type, ['parents', 'specialists'])) {
             return response()->json(['success' => false, 'message' => 'Invalid user type.'], 422);
@@ -107,10 +91,6 @@ class ManageUsersController extends Controller
         ], 201);
     }
 
-    // -------------------------------------------------------------------------
-    // PUT /api/admin/users/{type}/{id}
-    // Update a parent or specialist
-    // -------------------------------------------------------------------------
     public function update(Request $request, string $type, int $id): JsonResponse
     {
         if (!in_array($type, ['parents', 'specialists'])) {
@@ -150,10 +130,6 @@ class ManageUsersController extends Controller
         ]);
     }
 
-    // -------------------------------------------------------------------------
-    // DELETE /api/admin/users/{type}/{id}
-    // Delete a parent or specialist
-    // -------------------------------------------------------------------------
     public function destroy(string $type, int $id): JsonResponse
     {
         if (!in_array($type, ['parents', 'specialists'])) {
