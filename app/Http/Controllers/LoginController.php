@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -27,9 +28,9 @@ class LoginController extends Controller
 
         return response()->json([
             'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token, 'token_type' => 'Bearer',
+            'user' => $user->only(['id', 'mobile_number']),
+            'token' => $token,
+            'token_type' => 'Bearer',
         ], 200);
-        
     }
 }
