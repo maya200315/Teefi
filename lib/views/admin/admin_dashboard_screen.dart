@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:teefi/views/admin/manage_users_screen.dart';
+import 'manage_content_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -114,7 +115,14 @@ class DashboardScreen extends StatelessWidget {
               context: context,
               icon: Icons.edit_document,
               text: 'Manage Articles',
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ManageContentScreen(),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 12),
@@ -123,7 +131,9 @@ class DashboardScreen extends StatelessWidget {
               context: context,
               icon: Icons.grid_view,
               text: 'Manage PECS Cards',
-              onPressed: () {},
+              onPressed: () {
+                // لاحقاً
+              },
             ),
           ],
         ),
@@ -196,7 +206,7 @@ class _StatCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            const Icon(Icons.people, color: Color(0xFF5B9EF5)),
+            Icon(icon, color: const Color(0xFF5B9EF5)), // تم تعديلها هنا لتأخذ الأيقونة الممررة ديناميكياً
 
             const Spacer(),
 
