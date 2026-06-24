@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_colors.dart';
 import 'package:teefi/views/admin/content/add_article_screen.dart';
+import 'package:teefi/views/admin/content/add_pecs_screen.dart';
+import 'package:teefi/views/admin/content/pecs_category_screen.dart';
 
 class ManageContentScreen extends StatefulWidget {
-  const ManageContentScreen({super.key});
+  final int initialTab; // إضافة متغير استقبال التاب الافتراضي
+
+  const ManageContentScreen({
+    super.key,
+    this.initialTab = 1, // افتراضياً يفتح على المقالات (1) إذا لم نمرر شيء
+  });
 
   @override
   State<ManageContentScreen> createState() => _ManageContentScreenState();
 }
 
 class _ManageContentScreenState extends State<ManageContentScreen> {
-  int _selectedTab = 1;
+  late int _selectedTab; // تحويلها لـ late لتهيئتها في الـ initState
 
   final List<Map<String, String>> _articles = [
     {'title': 'How to Handle Autism Tantrums', 'category': 'Behavior'},
@@ -23,6 +30,12 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     {'title': 'Drink', 'category': 'Food'},
     {'title': 'Sleep', 'category': 'Routine'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTab = widget.initialTab; // تعيين التاب القادم من الـ Dashboard
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +98,27 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
 
                         IconButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddArticleScreen(
-                                  articleData: item,
+                            if (_selectedTab == 1) {
+                              // Articles → شاشة تعديل المقال
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddArticleScreen(
+                                    articleData: item,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            } else {
+                              // PECS → شاشة بطاقات الكاتيغوري
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PecsCategoryScreen(
+                                    category: item['category'] ?? 'Food',
+                                  ),
+                                ),
+                              );
+                            }
                           },
                           icon: const Icon(Icons.edit, color: AppColors.primary),
                         ),
@@ -127,8 +153,10 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                             color: AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(
-                            Icons.article_outlined,
+                          child: Icon(
+                            _selectedTab == 1
+                                ? Icons.article_outlined
+                                : Icons.style_outlined,
                             color: AppColors.primary,
                           ),
                         ),
@@ -154,6 +182,13 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const AddArticleScreen(),
+                  ),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddPecsScreen(),
                   ),
                 );
               }

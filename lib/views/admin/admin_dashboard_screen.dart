@@ -119,7 +119,7 @@ class DashboardScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ManageContentScreen(),
+                    builder: (_) => const ManageContentScreen(initialTab: 1), // يفتح المقالات
                   ),
                 );
               },
@@ -132,7 +132,12 @@ class DashboardScreen extends StatelessWidget {
               icon: Icons.grid_view,
               text: 'Manage PECS Cards',
               onPressed: () {
-                // لاحقاً
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ManageContentScreen(initialTab: 0), // هنا التعديل: يمرر 0 ليفتح الـ PECS مباشرة
+                  ),
+                );
               },
             ),
           ],
@@ -206,7 +211,7 @@ class _StatCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            Icon(icon, color: const Color(0xFF5B9EF5)), // تم تعديلها هنا لتأخذ الأيقونة الممررة ديناميكياً
+            Icon(icon, color: const Color(0xFF5B9EF5)),
 
             const Spacer(),
 

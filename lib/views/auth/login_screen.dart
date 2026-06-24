@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Logo (تم تحديث مسار الصورة هنا)
               Image.asset(
-                'assets/images/ggoo.png',
+                'assets/images/icon.png',
                 height: 150,
                 color: const Color(0xFFF2F7FF),
                 colorBlendMode: BlendMode.modulate,

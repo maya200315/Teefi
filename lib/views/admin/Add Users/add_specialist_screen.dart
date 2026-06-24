@@ -17,7 +17,8 @@ class AddSpecialistScreen extends StatefulWidget {
 class _AddSpecialistScreenState extends State<AddSpecialistScreen> {
 
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
+  // تم تغيير اسم الـ Controller ليعبر عن رقم الهاتف
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
   String? selectedSpecialty;
@@ -37,8 +38,9 @@ class _AddSpecialistScreenState extends State<AddSpecialistScreen> {
       _nameController.text =
           widget.specialistData!['name'] ?? '';
 
-      _emailController.text =
-          widget.specialistData!['email'] ?? '';
+      // تعديل جلب البيانات ليعتمد على حقل الهاتف بدلاً من الإيميل
+      _phoneController.text =
+          widget.specialistData!['phone'] ?? '';
 
       _passwordController.text =
           widget.specialistData!['password'] ?? '';
@@ -51,7 +53,7 @@ class _AddSpecialistScreenState extends State<AddSpecialistScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
+    _phoneController.dispose(); // تعديل هنا
     _passwordController.dispose();
     super.dispose();
   }
@@ -173,8 +175,9 @@ class _AddSpecialistScreenState extends State<AddSpecialistScreen> {
 
               const SizedBox(height: 24),
 
+              // تعديل نص العنوان هنا إلى Phone Number
               const Text(
-                'Email',
+                'Phone Number',
                 style: TextStyle(
                   color: AppColors.textGrey,
                   fontWeight: FontWeight.w600,
@@ -184,10 +187,11 @@ class _AddSpecialistScreenState extends State<AddSpecialistScreen> {
               const SizedBox(height: 8),
 
               TextField(
-                controller: _emailController,
+                controller: _phoneController,
+                keyboardType: TextInputType.phone, // تحديد نوع الكيبورد ليكون أرقام هواتف
                 decoration: _inputDecoration(
-                  'example@teefi.app',
-                  icon: Icons.email_outlined,
+                  'Enter phone number', // تعديل نص التلميح
+                  icon: Icons.phone_outlined, // تغيير الأيقونة لتناسب الهاتف
                 ),
               ),
 

@@ -20,14 +20,15 @@ class _AddParentScreenState extends State<AddParentScreen> {
   final TextEditingController _childAgeController =
   TextEditingController();
 
-  final TextEditingController _emailController =
+  // تم تغيير اسم الـ Controller ليعبر عن رقم الهاتف
+  final TextEditingController _phoneController =
   TextEditingController();
 
   final TextEditingController _passwordController =
   TextEditingController();
 
   String selectedAutismLevel = 'Mild';
-  String selectedSpecialist = 'Dr. Ahmad'; // تم تعديل القيمة الافتراضية لتطابق الـ initState والـ list لتجنب الـ Crash
+  String selectedSpecialist = 'Dr. Ahmad';
 
   bool obscurePassword = true;
 
@@ -54,8 +55,9 @@ class _AddParentScreenState extends State<AddParentScreen> {
       _childAgeController.text =
           widget.parentData!['childAge'] ?? '';
 
-      _emailController.text =
-          widget.parentData!['email'] ?? '';
+      // تعديل جلب البيانات ليعتمد على حقل الهاتف بدلاً من الإيميل
+      _phoneController.text =
+          widget.parentData!['phone'] ?? '';
 
       _passwordController.text =
           widget.parentData!['password'] ?? '';
@@ -72,7 +74,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
   void dispose() {
     _childNameController.dispose();
     _childAgeController.dispose();
-    _emailController.dispose();
+    _phoneController.dispose(); // تعديل هنا
     _passwordController.dispose();
     super.dispose();
   }
@@ -228,18 +230,20 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
               const SizedBox(height: 20),
 
-              const Text('Email'),
+              // تعديل نص العنوان هنا إلى Phone Number
+              const Text('Phone Number'),
 
               const SizedBox(height: 8),
 
               TextField(
-                controller: _emailController,
+                controller: _phoneController,
+                keyboardType: TextInputType.phone, // تحديد نوع الكيبورد ليكون أرقام هواتف
 
                 decoration: InputDecoration(
-                  hintText: 'example@teefi.app',
+                  hintText: 'Enter phone number', // تعديل نص التلميح
 
                   prefixIcon: const Icon(
-                    Icons.email_outlined,
+                    Icons.phone_outlined, // تغيير الأيقونة لتناسب الهاتف
                   ),
 
                   border: OutlineInputBorder(
