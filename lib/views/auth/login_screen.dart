@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../admin/admin_dashboard_screen.dart';
+import 'package:teefi/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,7 +33,6 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 48),
 
-              // Logo (تم تحديث مسار الصورة هنا)
               Image.asset(
                 'assets/images/icon.png',
                 height: 150,
@@ -41,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 12),
 
-              // App Name
               const Text(
                 'Teefi',
                 style: TextStyle(
@@ -53,7 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 6),
 
-              // Tagline
               const Text(
                 'Together for a better tomorrow',
                 style: TextStyle(
@@ -64,7 +63,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 40),
 
-              // Phone Number Field
               Align(
                 alignment: Alignment.centerLeft,
                 child: const Text(
@@ -76,35 +74,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
                   hintText: 'Enter your phone number',
                   hintStyle: const TextStyle(color: Color(0xFFA0B4D0)),
-                  prefixIcon: const Icon(Icons.phone_android,
-                      color: Color(0xFF5B9EF5)),
+                  prefixIcon: const Icon(Icons.phone_android, color: Color(0xFF5B9EF5)),
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFFD8E8FA)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFFD8E8FA)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF5B9EF5)),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF5B9EF5))),
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              // Password Field
               Align(
                 alignment: Alignment.centerLeft,
                 child: const Text(
@@ -116,73 +105,70 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   hintText: 'Enter your password',
                   hintStyle: const TextStyle(color: Color(0xFFA0B4D0)),
-                  prefixIcon: const Icon(Icons.lock_outline,
-                      color: Color(0xFF5B9EF5)),
+                  prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF5B9EF5)),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                      _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                       color: const Color(0xFFA0B4D0),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFFD8E8FA)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFFD8E8FA)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF5B9EF5)),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF5B9EF5))),
                 ),
               ),
 
               const SizedBox(height: 32),
 
-              // Login Button
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_phoneController.text == '0999999999' &&
-                        _passwordController.text == '123456') {
+                  onPressed: _isLoading ? null : () async {
+                    // التحقق من الحقول الفارغة قبل البدء بعملية تسجيل الدخول
+                    if (_phoneController.text.isEmpty || _passwordController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter phone and password'),
+                        ),
+                      );
+                      return;
+                    }
 
+                    setState(() => _isLoading = true);
+
+                    final authService = AuthService();
+                    final result = await authService.login(
+                      _phoneController.text,
+                      _passwordController.text,
+                    );
+
+                    setState(() => _isLoading = false);
+
+                    if (result['success']) {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const DashboardScreen(),
                         ),
                       );
-
                     } else {
-
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Wrong phone number or password'),
-                        ),
+                        SnackBar(content: Text(result['message'] ?? 'Login failed')),
                       );
-
                     }
-                    // سنضيف منطق الـ Login لاحقاً
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5B9EF5),
@@ -190,7 +176,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                     'Login',
                     style: TextStyle(
                       fontSize: 16,
@@ -203,13 +191,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 40),
 
-              // Footer
               const Text(
                 '© 2024 Teefi Support. All rights reserved.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFFA0B4D0),
-                ),
+                style: TextStyle(fontSize: 12, color: Color(0xFFA0B4D0)),
               ),
 
               const SizedBox(height: 16),
