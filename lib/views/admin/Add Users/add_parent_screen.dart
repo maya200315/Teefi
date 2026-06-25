@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_colors.dart';
+import '../../../services/parent_details_service.dart';
+import '../../../services/parents_service.dart'; // 1. إضافة السيرفس الجديد هنا
 
 class AddParentScreen extends StatefulWidget {
   final Map<String, dynamic>? parentData;
@@ -14,22 +16,18 @@ class AddParentScreen extends StatefulWidget {
 }
 
 class _AddParentScreenState extends State<AddParentScreen> {
-  final TextEditingController _childNameController =
-  TextEditingController();
+  final TextEditingController _childNameController = TextEditingController();
+  final TextEditingController _childAgeController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  final TextEditingController _childAgeController =
-  TextEditingController();
+  final ParentDetailsService _detailsService = ParentDetailsService();
 
-  // تم تغيير اسم الـ Controller ليعبر عن رقم الهاتف
-  final TextEditingController _phoneController =
-  TextEditingController();
-
-  final TextEditingController _passwordController =
-  TextEditingController();
+  // 2. تعريف السيرفس المسؤول عن الإضافة داخل الكلاس
+  final ParentsService _service = ParentsService();
 
   String selectedAutismLevel = 'Mild';
   String selectedSpecialist = 'Dr. Ahmad';
-
   bool obscurePassword = true;
 
   final List<String> autismLevels = [
@@ -48,25 +46,21 @@ class _AddParentScreenState extends State<AddParentScreen> {
   void initState() {
     super.initState();
 
-    if (widget.parentData != null) {
-      _childNameController.text =
-          widget.parentData!['childName'] ?? '';
+    if (widget.parentData != null && widget.parentData!['id'] != null) {
+      _loadParent(widget.parentData!['id']);
+    }
+  }
 
-      _childAgeController.text =
-          widget.parentData!['childAge'] ?? '';
+  void _loadParent(int id) async {
+    try {
+      final data = await _detailsService.getParentById(id);
 
-      // تعديل جلب البيانات ليعتمد على حقل الهاتف بدلاً من الإيميل
-      _phoneController.text =
-          widget.parentData!['phone'] ?? '';
-
-      _passwordController.text =
-          widget.parentData!['password'] ?? '';
-
-      selectedAutismLevel =
-          widget.parentData!['autismLevel'] ?? 'Mild';
-
-      selectedSpecialist =
-          widget.parentData!['specialist'] ?? 'Dr. Ahmad';
+      setState(() {
+        _childNameController.text = data['name'] ?? '';
+        _phoneController.text = data['mobile_number'] ?? '';
+      });
+    } catch (e) {
+      print("Error loading parent details: $e");
     }
   }
 
@@ -74,7 +68,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
   void dispose() {
     _childNameController.dispose();
     _childAgeController.dispose();
-    _phoneController.dispose(); // تعديل هنا
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -150,8 +144,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
                   Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
                         const Text('Child Age'),
@@ -160,14 +153,12 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
                         TextField(
                           controller: _childAgeController,
-                          keyboardType:
-                          TextInputType.number,
+                          keyboardType: TextInputType.number,
 
                           decoration: InputDecoration(
                             hintText: 'Enter age',
                             border: OutlineInputBorder(
-                              borderRadius:
-                              BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         ),
@@ -179,8 +170,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
                   Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
                         const Text('Autism Level'),
@@ -192,8 +182,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
-                              borderRadius:
-                              BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
 
@@ -208,8 +197,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
                           onChanged: (value) {
                             setState(() {
-                              selectedAutismLevel =
-                              value!;
+                              selectedAutismLevel = value!;
                             });
                           },
                         ),
@@ -230,25 +218,23 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
               const SizedBox(height: 20),
 
-              // تعديل نص العنوان هنا إلى Phone Number
               const Text('Phone Number'),
 
               const SizedBox(height: 8),
 
               TextField(
                 controller: _phoneController,
-                keyboardType: TextInputType.phone, // تحديد نوع الكيبورد ليكون أرقام هواتف
+                keyboardType: TextInputType.phone,
 
                 decoration: InputDecoration(
-                  hintText: 'Enter phone number', // تعديل نص التلميح
+                  hintText: 'Enter phone number',
 
                   prefixIcon: const Icon(
-                    Icons.phone_outlined, // تغيير الأيقونة لتناسب الهاتف
+                    Icons.phone_outlined,
                   ),
 
                   border: OutlineInputBorder(
-                    borderRadius:
-                    BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -276,15 +262,13 @@ class _AddParentScreenState extends State<AddParentScreen> {
                     ),
                     onPressed: () {
                       setState(() {
-                        obscurePassword =
-                        !obscurePassword;
+                        obscurePassword = !obscurePassword;
                       });
                     },
                   ),
 
                   border: OutlineInputBorder(
-                    borderRadius:
-                    BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -304,18 +288,16 @@ class _AddParentScreenState extends State<AddParentScreen> {
                   ),
 
                   border: OutlineInputBorder(
-                    borderRadius:
-                    BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
 
                 items: specialists
                     .map(
-                      (specialist) =>
-                      DropdownMenuItem(
-                        value: specialist,
-                        child: Text(specialist),
-                      ),
+                      (specialist) => DropdownMenuItem(
+                    value: specialist,
+                    child: Text(specialist),
+                  ),
                 )
                     .toList(),
 
@@ -333,25 +315,40 @@ class _AddParentScreenState extends State<AddParentScreen> {
                 height: 55,
 
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Save or Update Parent
+                  // 3. تحديث الـ onPressed ليدعم استدعاء الـ API عند الحفظ
+                  onPressed: () async {
+                    if (widget.parentData == null) {
+                      try {
+                        // CREATE NEW PARENT
+                        await _service.createParent(
+                          name: _childNameController.text.trim(),
+                          mobileNumber: _phoneController.text.trim(),
+                          password: _passwordController.text,
+                        );
+
+                        if (context.mounted) {
+                          Navigator.pop(context, true);
+                        }
+                      } catch (e) {
+                        print("Error creating parent: $e");
+                      }
+                    } else {
+                      // UPDATE لاحقاً
+                    }
                   },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                    AppColors.primary,
+                    backgroundColor: AppColors.primary,
 
-                    shape:
-                    RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius.circular(30),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ).borderRadius,
                     ),
                   ),
 
                   child: Text(
-                    widget.parentData == null
-                        ? 'Save'
-                        : 'Update',
+                    widget.parentData == null ? 'Save' : 'Update',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

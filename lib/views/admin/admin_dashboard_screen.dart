@@ -115,7 +115,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
 
                 _StatCard(
-                  title: 'PECS Cards',
+                  title: 'Category PECS', // التعديل المطلوب هنا
                   count: '${dashboardData?['pecs_cards_count'] ?? 0}', // استبدال الرقم الثابت
                   icon: Icons.style,
                 ),

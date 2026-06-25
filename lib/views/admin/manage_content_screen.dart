@@ -5,11 +5,11 @@ import 'package:teefi/views/admin/content/add_pecs_screen.dart';
 import 'package:teefi/views/admin/content/pecs_category_screen.dart';
 
 class ManageContentScreen extends StatefulWidget {
-  final int initialTab; // إضافة متغير استقبال التاب الافتراضي
+  final int initialTab;
 
   const ManageContentScreen({
     super.key,
-    this.initialTab = 1, // افتراضياً يفتح على المقالات (1) إذا لم نمرر شيء
+    this.initialTab = 1,
   });
 
   @override
@@ -17,7 +17,7 @@ class ManageContentScreen extends StatefulWidget {
 }
 
 class _ManageContentScreenState extends State<ManageContentScreen> {
-  late int _selectedTab; // تحويلها لـ late لتهيئتها في الـ initState
+  late int _selectedTab;
 
   final List<Map<String, String>> _articles = [
     {'title': 'How to Handle Autism Tantrums', 'category': 'Behavior'},
@@ -25,22 +25,23 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     {'title': 'Daily Positive Behavior Reinforcement', 'category': 'Daily Care'},
   ];
 
-  final List<Map<String, String>> _pecsCards = [
-    {'title': 'Eat', 'category': 'Food'},
-    {'title': 'Drink', 'category': 'Food'},
-    {'title': 'Sleep', 'category': 'Routine'},
+  // الكاتيغوري هون — مش الكروت مباشرة
+  final List<String> _pecsCategories = [
+    'Food',
+    'Play',
+    'Routine',
+    'Emotions',
+    'School',
   ];
 
   @override
   void initState() {
     super.initState();
-    _selectedTab = widget.initialTab; // تعيين التاب القادم من الـ Dashboard
+    _selectedTab = widget.initialTab;
   }
 
   @override
   Widget build(BuildContext context) {
-    final content = _selectedTab == 1 ? _articles : _pecsCards;
-
     return Scaffold(
       backgroundColor: AppColors.background,
 
@@ -55,10 +56,9 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
 
       body: Padding(
         padding: const EdgeInsets.all(16),
-
         child: Column(
           children: [
-
+            // التابات
             Container(
               decoration: BoxDecoration(
                 color: AppColors.primaryLight,
@@ -66,7 +66,7 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
               ),
               child: Row(
                 children: [
-                  _tabButton('PECS Cards', 0),
+                  _tabButton('Category PECS', 0),
                   _tabButton('Articles', 1),
                 ],
               ),
@@ -74,97 +74,11 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
 
             const SizedBox(height: 20),
 
+            // المحتوى
             Expanded(
-              child: ListView.separated(
-                itemCount: content.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final item = content[index];
-
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.cardBorder),
-                    ),
-                    child: Row(
-                      children: [
-
-                        IconButton(
-                          onPressed: () => _showDeleteDialog(content, index),
-                          icon: const Icon(Icons.delete_outline, color: Colors.red),
-                        ),
-
-                        IconButton(
-                          onPressed: () {
-                            if (_selectedTab == 1) {
-                              // Articles → شاشة تعديل المقال
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddArticleScreen(
-                                    articleData: item,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              // PECS → شاشة بطاقات الكاتيغوري
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PecsCategoryScreen(
-                                    category: item['category'] ?? 'Food',
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.edit, color: AppColors.primary),
-                        ),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                item['title']!,
-                                textAlign: TextAlign.right,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textDark,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                item['category']!,
-                                style: const TextStyle(color: AppColors.textGrey),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(width: 10),
-
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            _selectedTab == 1
-                                ? Icons.article_outlined
-                                : Icons.style_outlined,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+              child: _selectedTab == 1
+                  ? _buildArticlesList()
+                  : _buildCategoriesList(),
             ),
           ],
         ),
@@ -185,16 +99,11 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                   ),
                 );
               } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddPecsScreen(),
-                  ),
-                );
+                _showAddCategoryDialog();
               }
             },
             icon: const Icon(Icons.add),
-            label: Text(_selectedTab == 1 ? 'Add Article' : 'Add PECS Card'),
+            label: Text(_selectedTab == 1 ? 'Add Article' : 'Add Category'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -219,9 +128,228 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     );
   }
 
+  // ليستة المقالات
+  Widget _buildArticlesList() {
+    return ListView.separated(
+      itemCount: _articles.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final item = _articles[index];
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => _showDeleteDialog(
+                  onConfirm: () => setState(() => _articles.removeAt(index)),
+                ),
+                icon: const Icon(Icons.delete_outline, color: Colors.red),
+              ),
+              IconButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddArticleScreen(articleData: item),
+                  ),
+                ),
+                icon: const Icon(Icons.edit, color: AppColors.primary),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      item['title']!,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(item['category']!, style: const TextStyle(color: AppColors.textGrey)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.article_outlined, color: AppColors.primary),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ليستة الكاتيغوري
+  Widget _buildCategoriesList() {
+    return ListView.separated(
+      itemCount: _pecsCategories.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final category = _pecsCategories[index];
+        return GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PecsCategoryScreen(category: category),
+            ),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Row(
+              children: [
+                // حذف الكاتيغوري
+                IconButton(
+                  onPressed: () => _showDeleteDialog(
+                    onConfirm: () => setState(() => _pecsCategories.removeAt(index)),
+                  ),
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                ),
+                // تعديل اسم الكاتيغوري
+                IconButton(
+                  onPressed: () => _showEditCategoryDialog(index),
+                  icon: const Icon(Icons.edit, color: AppColors.primary),
+                ),
+                Expanded(
+                  child: Text(
+                    category,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.style_outlined, color: AppColors.primary),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ديالوج إضافة كاتيغوري
+  void _showAddCategoryDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Category'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Category name',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                setState(() => _pecsCategories.add(controller.text.trim()));
+                Navigator.pop(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            child: const Text('Add', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ديالوج تعديل اسم الكاتيغوري
+  void _showEditCategoryDialog(int index) {
+    final controller = TextEditingController(text: _pecsCategories[index]);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Category'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                setState(() => _pecsCategories[index] = controller.text.trim());
+                Navigator.pop(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            child: const Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ديالوج تأكيد الحذف
+  void _showDeleteDialog({required VoidCallback onConfirm}) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete'),
+        content: const Text('Are you sure you want to delete this item?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('No'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              onConfirm();
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Yes', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _tabButton(String title, int index) {
     final isSelected = _selectedTab == index;
-
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _selectedTab = index),
@@ -241,32 +369,6 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showDeleteDialog(List<Map<String, String>> list, int index) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Delete Content'),
-          content: const Text('Are you sure you want to delete this item?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('No'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() => list.removeAt(index));
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Yes', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        );
-      },
     );
   }
 }

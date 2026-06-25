@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class AddPecsScreen extends StatefulWidget {
   final Map<String, String>? pecsData;
+  final String? category;
 
   const AddPecsScreen({
     super.key,
     this.pecsData,
+    this.category,
   });
 
   @override
@@ -14,25 +16,31 @@ class AddPecsScreen extends StatefulWidget {
 
 class _AddPecsScreenState extends State<AddPecsScreen> {
   final TextEditingController _titleController = TextEditingController();
-  String _selectedEmoji = '🍎';
-  String _selectedCategory = 'Food';
 
-  final List<String> _emojis = [
-    '🍎', '🥤', '🛁', '🎮', '😴', '🚗',
-    '📚', '🎨', '🏃', '🍞', '🧸', '👕',
-  ];
+  late String _selectedCategory;
+
+  String _imagePath = 'assets/images/ggoo.png';
 
   final List<String> _categories = [
-    'Food', 'Play', 'Routine', 'Emotions', 'School',
+    'Food',
+    'Play',
+    'Routine',
+    'Emotions',
+    'School',
   ];
 
   @override
   void initState() {
     super.initState();
+
     if (widget.pecsData != null) {
       _titleController.text = widget.pecsData!['title'] ?? '';
-      _selectedEmoji = widget.pecsData!['emoji'] ?? '🍎';
-      _selectedCategory = widget.pecsData!['category'] ?? 'Food';
+      _selectedCategory =
+          widget.pecsData!['category'] ?? widget.category ?? 'Food';
+
+      _imagePath = widget.pecsData!['image'] ?? 'assets/images/ggoo.png';
+    } else {
+      _selectedCategory = widget.category ?? 'Food';
     }
   }
 
@@ -42,94 +50,129 @@ class _AddPecsScreenState extends State<AddPecsScreen> {
     super.dispose();
   }
 
+  void _saveCard() {
+    if (_titleController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a card name')),
+      );
+      return;
+    }
+
+    Navigator.pop(context, {
+      'title': _titleController.text.trim(),
+      'category': _selectedCategory,
+      'image': _imagePath,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isEdit = widget.pecsData != null;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FF),
-
       appBar: AppBar(
         title: Text(
-          widget.pecsData == null ? 'Add PECS Card' : 'Edit PECS Card',
+          isEdit ? 'Edit PECS Card' : 'Add PECS Card',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF5B9EF5),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // Preview
+            // IMAGE (تم الاستبدال والتعديل هنا بناءً على طلبك)
             Center(
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDFF0FF),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFD8E8FA)),
-                ),
-                child: Center(
-                  child: Text(_selectedEmoji, style: const TextStyle(fontSize: 60)),
-                ),
+              child: Column(
+                children: [
+                  if (isEdit)
+                    Container(
+                      width: 140,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFFD8E8FA),
+                          width: 2,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Image.asset(
+                          _imagePath,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      width: 140,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFFD8E8FA),
+                          width: 2,
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.add,
+                          size: 50,
+                          color: Color(0xFF5B9EF5),
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 10),
+
+                  if (isEdit)
+                    TextButton(
+                      onPressed: () {
+                        // image picker لاحقاً
+                      },
+                      child: const Text(
+                        'Change Image',
+                        style: TextStyle(
+                          color: Color(0xFF5B9EF5),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                  else
+                    TextButton(
+                      onPressed: () {
+                        // image picker لاحقاً
+                      },
+                      child: const Text(
+                        'Add Image',
+                        style: TextStyle(
+                          color: Color(0xFF5B9EF5),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
 
             const SizedBox(height: 24),
 
-            // Emoji Picker
-            const Text(
-              'اختر رمز',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2D5F9E)),
-            ),
-
-            const SizedBox(height: 8),
-
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFD8E8FA)),
-              ),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                ),
-                itemCount: _emojis.length,
-                itemBuilder: (context, index) {
-                  final emoji = _emojis[index];
-                  final isSelected = emoji == _selectedEmoji;
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedEmoji = emoji),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF5B9EF5) : const Color(0xFFF2F7FF),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(emoji, style: const TextStyle(fontSize: 24)),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Title
+            // TITLE
             const Text(
               'اسم البطاقة',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2D5F9E)),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2D5F9E),
+              ),
             ),
 
             const SizedBox(height: 6),
@@ -139,21 +182,24 @@ class _AddPecsScreenState extends State<AddPecsScreen> {
               textAlign: TextAlign.right,
               decoration: InputDecoration(
                 hintText: 'مثال: طعام',
-                hintStyle: const TextStyle(color: Color(0xFFA0B4D0)),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF5B9EF5))),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // Category
+            // CATEGORY
             const Text(
               'التصنيف',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2D5F9E)),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2D5F9E),
+              ),
             ),
 
             const SizedBox(height: 6),
@@ -163,12 +209,21 @@ class _AddPecsScreenState extends State<AddPecsScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF5B9EF5))),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              items: _categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
-              onChanged: (value) => setState(() => _selectedCategory = value!),
+              items: _categories
+                  .map((cat) => DropdownMenuItem(
+                value: cat,
+                child: Text(cat),
+              ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedCategory = value!;
+                });
+              },
             ),
 
             const SizedBox(height: 24),
@@ -177,15 +232,17 @@ class _AddPecsScreenState extends State<AddPecsScreen> {
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: _saveCard,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF5B9EF5),
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
                 child: Text(
-                  widget.pecsData == null ? 'حفظ' : 'تحديث',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  isEdit ? 'تحديث' : 'حفظ',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
             ),

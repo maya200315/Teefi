@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teefi/services/parents_service.dart';
 import 'Add Users/add_parent_screen.dart';
 import 'Add Users/add_specialist_screen.dart';
 
@@ -12,11 +13,9 @@ class ManageUsersScreen extends StatefulWidget {
 class _ManageUsersScreenState extends State<ManageUsersScreen> {
   int _selectedTab = 0;
 
-  final List<Map<String, String>> _parents = [
-    {'name': 'أحمد', 'subtitle': 'Age 7 — Moderate ASD'},
-    {'name': 'سارة', 'subtitle': 'Age 5 — Mild ASD'},
-    {'name': 'محمد', 'subtitle': 'Age 9 — Severe ASD'},
-  ];
+  final ParentsService _parentsService = ParentsService();
+  List parents = [];
+  bool isLoading = true;
 
   final List<Map<String, String>> _specialists = [
     {'name': 'Dr. Lina', 'subtitle': 'Speech Therapist'},
@@ -24,8 +23,29 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadParents();
+  }
+
+  void _loadParents() async {
+    setState(() => isLoading = true);
+
+    try {
+      final data = await _parentsService.getParents();
+      setState(() {
+        parents = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Error loading parents: $e");
+      setState(() => isLoading = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final users = _selectedTab == 0 ? _parents : _specialists;
+    final bool isParentsTab = _selectedTab == 0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FF),
@@ -75,14 +95,17 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: const Color(0xFFDFF0FF),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: const Color(0xFFD8E8FA)),
                   ),
                   child: Text(
-                    '${users.length} Registered',
+                    isParentsTab
+                        ? '${parents.length} Registered'
+                        : '${_specialists.length} Registered',
                     style: const TextStyle(
                       color: Color(0xFF2D5F9E),
                       fontSize: 13,
@@ -94,168 +117,10 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
             const SizedBox(height: 16),
 
-            // Users List
             Expanded(
-              child: ListView.separated(
-                itemCount: users.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final user = users[index];
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFD8E8FA)),
-                    ),
-                    child: Row(
-                      children: [
-
-                        // Avatar
-                        CircleAvatar(
-                          radius: 28,
-                          backgroundColor: const Color(0xFFDFF0FF),
-                          child: Text(
-                            user['name']![0],
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: Color(0xFF2D5F9E),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        // Name + Subtitle
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                user['name']!,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF2D5F9E),
-                                ),
-                              ),
-                              Text(
-                                user['subtitle']!,
-                                style: const TextStyle(
-                                  color: Color(0xFFA0B4D0),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Edit
-                        IconButton(
-                          onPressed: () {
-                            if (_selectedTab == 0) {
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => AddParentScreen(
-                                    parentData: {
-                                      'childName': user['name'],
-                                      'childAge': '7',
-                                      'autismLevel': 'Moderate',
-                                      'email': 'parent@test.com',
-                                      'password': '123456',
-                                      'specialist': 'Dr. Ahmad',
-                                    },
-                                  ),
-                                ),
-                              );
-
-                            } else {
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => AddSpecialistScreen(
-                                    specialistData: {
-                                      'name': user['name'],
-                                      'email': 'specialist@test.com',
-                                      'password': '123456',
-                                      'specialty': 'Speech Therapy',
-                                    },
-                                  ),
-                                ),
-                              );
-
-                            }
-                          },
-                          icon: const Icon(
-                            Icons.edit,
-                            color: Color(0xFF5B9EF5),
-                          ),
-                        ),
-
-                        // Delete
-                        IconButton(
-                          onPressed: () {
-
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-
-                                  title: const Text('Delete User'),
-
-                                  content: const Text(
-                                    'Are you sure you want to delete this user?',
-                                  ),
-
-                                  actions: [
-
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('No'),
-                                    ),
-
-                                    ElevatedButton(
-                                      onPressed: () {
-
-                                        setState(() {
-                                          users.removeAt(index);
-                                        });
-
-                                        Navigator.pop(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                      ),
-                                      child: const Text(
-                                        'Yes',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-
-                                  ],
-                                );
-                              },
-                            );
-
-                          },
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Color(0xFFDC2626),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+              child: isParentsTab
+                  ? _buildParentsList()
+                  : _buildSpecialistsList(),
             ),
           ],
         ),
@@ -268,30 +133,31 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           width: double.infinity,
           height: 55,
           child: ElevatedButton.icon(
-            onPressed: () {
+            onPressed: () async {
               if (_selectedTab == 0) {
-
-                Navigator.push(
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const AddParentScreen(),
                   ),
                 );
 
+                if (result == true) {
+                  _loadParents();
+                }
               } else {
-
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const AddSpecialistScreen(),
                   ),
                 );
-
               }
-
             },
             icon: const Icon(Icons.add),
-            label: Text(_selectedTab == 0 ? 'Add Parent' : 'Add Specialist'),
+            label: Text(
+              _selectedTab == 0 ? 'Add Parent' : 'Add Specialist',
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF5B9EF5),
               foregroundColor: Colors.white,
@@ -312,9 +178,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           if (index == 0) Navigator.pop(context);
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Users'),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Content'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.people), label: 'Users'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.article), label: 'Content'),
         ],
       ),
     );
@@ -322,6 +191,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
   Widget _tabButton(String label, int index) {
     final isSelected = _selectedTab == index;
+
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _selectedTab = index),
@@ -341,6 +211,163 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  // ---------------- PARENTS ----------------
+
+  Widget _buildParentsList() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (parents.isEmpty) {
+      return const Center(
+        child: Text(
+          "No Parents Found",
+          style: TextStyle(color: Color(0xFFA0B4D0)),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      itemCount: parents.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final parent = parents[index];
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFD8E8FA)),
+          ),
+          child: Row(
+            children: [
+
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: const Color(0xFFDFF0FF),
+                child: Text(
+                  (parent['name'] ?? '?')[0],
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Color(0xFF2D5F9E),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // ✅ FIXED
+                  children: [
+                    Text(
+                      parent['name'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D5F9E),
+                      ),
+                    ),
+                    Text(
+                      parent['mobile_number'] ?? '',
+                      style: const TextStyle(
+                        color: Color(0xFFA0B4D0),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              IconButton(
+                icon: const Icon(Icons.edit, color: Color(0xFF5B9EF5)),
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddParentScreen(
+                        parentData: {
+                          'id': parent['id'].toString(),
+                        },
+                      ),
+                    ),
+                  );
+
+                  if (result == true) {
+                    _loadParents();
+                  }
+                },
+              ),
+
+              IconButton(
+                icon: const Icon(Icons.delete, color: Color(0xFFDC2626)),
+                onPressed: () {
+                  setState(() {
+                    parents.removeAt(index);
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ---------------- SPECIALISTS ----------------
+
+  Widget _buildSpecialistsList() {
+    return ListView.separated(
+      itemCount: _specialists.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final user = _specialists[index];
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFD8E8FA)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                user['name'] ?? '',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D5F9E),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit, color: Color(0xFF5B9EF5)),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddSpecialistScreen(
+                        specialistData: {
+                          'name': user['name'],
+                          'email': 'specialist@test.com',
+                          'password': '123456',
+                          'specialty': user['subtitle'] ?? '',
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
