@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:teefi/providers/auth_provider.dart';
 import '../admin/admin_dashboard_screen.dart';
-import 'package:teefi/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,7 +14,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,8 +22,39 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  Future<void> _handleLogin(BuildContext context) async {
+    // التحقق من الحقول الفارغة
+    if (_phoneController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter phone and password')),
+      );
+      return;
+    }
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    final success = await authProvider.login(
+      _phoneController.text,
+      _passwordController.text,
+    );
+
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DashboardScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage ?? 'Login failed')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // هون بنراقب الـ isLoading من Provider
+    final isLoading = context.watch<AuthProvider>().isLoading;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FF),
       body: SafeArea(
@@ -55,10 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const Text(
                 'Together for a better tomorrow',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFFA0B4D0),
-                ),
+                style: TextStyle(fontSize: 14, color: Color(0xFFA0B4D0)),
               ),
 
               const SizedBox(height: 40),
@@ -136,47 +164,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : () async {
-                    // التحقق من الحقول الفارغة قبل البدء بعملية تسجيل الدخول
-                    if (_phoneController.text.isEmpty || _passwordController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please enter phone and password'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    setState(() => _isLoading = true);
-
-                    final authService = AuthService();
-                    final result = await authService.login(
-                      _phoneController.text,
-                      _passwordController.text,
-                    );
-
-                    setState(() => _isLoading = false);
-
-                    if (result['success']) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const DashboardScreen(),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(result['message'] ?? 'Login failed')),
-                      );
-                    }
-                  },
+                  onPressed: isLoading ? null : () => _handleLogin(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5B9EF5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: _isLoading
+                  child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                     'Login',

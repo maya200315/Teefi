@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/app_colors.dart';
-import '../../../services/parent_details_service.dart';
-import '../../../services/parents_service.dart'; // 1. إضافة السيرفس الجديد هنا
+import '../../../providers/parents_provider.dart';
+import '../../../providers/parent_details_provider.dart';
 
 class AddParentScreen extends StatefulWidget {
   final Map<String, dynamic>? parentData;
 
-  const AddParentScreen({
-    super.key,
-    this.parentData,
-  });
+  const AddParentScreen({super.key, this.parentData});
 
   @override
   State<AddParentScreen> createState() => _AddParentScreenState();
@@ -21,46 +19,22 @@ class _AddParentScreenState extends State<AddParentScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final ParentDetailsService _detailsService = ParentDetailsService();
-
-  // 2. تعريف السيرفس المسؤول عن الإضافة داخل الكلاس
-  final ParentsService _service = ParentsService();
-
   String selectedAutismLevel = 'Mild';
   String selectedSpecialist = 'Dr. Ahmad';
   bool obscurePassword = true;
+  bool _dataLoaded = false; // ✅ عشان ما نعبي الـ controllers أكثر من مرة
 
-  final List<String> autismLevels = [
-    'Mild',
-    'Moderate',
-    'Severe',
-  ];
-
-  final List<String> specialists = [
-    'Dr. Ahmad',
-    'Dr. Sarah',
-    'Dr. Mohammad',
-  ];
+  final List<String> autismLevels = ['Mild', 'Moderate', 'Severe'];
+  final List<String> specialists = ['Dr. Ahmad', 'Dr. Sarah', 'Dr. Mohammad'];
 
   @override
   void initState() {
     super.initState();
-
-    if (widget.parentData != null && widget.parentData!['id'] != null) {
-      _loadParent(widget.parentData!['id']);
-    }
-  }
-
-  void _loadParent(int id) async {
-    try {
-      final data = await _detailsService.getParentById(id);
-
-      setState(() {
-        _childNameController.text = data['name'] ?? '';
-        _phoneController.text = data['mobile_number'] ?? '';
-      });
-    } catch (e) {
-      print("Error loading parent details: $e");
+    final id = widget.parentData?['id'];
+    if (id != null) {
+      Future.microtask(() =>
+          context.read<ParentDetailsProvider>().fetchParentById(
+              int.tryParse(id.toString()) ?? 0));
     }
   }
 
@@ -71,6 +45,22 @@ class _AddParentScreenState extends State<AddParentScreen> {
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  String? _validate() {
+    if (_childNameController.text.trim().isEmpty) return 'Please enter child name';
+    if (_phoneController.text.trim().isEmpty) return 'Please enter phone number';
+
+    final age = int.tryParse(_childAgeController.text.trim());
+    if (_childAgeController.text.isNotEmpty) {
+      if (age == null || age <= 0) return 'Please enter a valid age';
+      if (age > 18) return 'Age must be 18 or less';
+    }
+
+    if (widget.parentData == null && _passwordController.text.isEmpty) {
+      return 'Please enter password';
+    }
+    return null;
   }
 
   Widget sectionTitle(String title) {
@@ -86,54 +76,49 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final detailsProvider = context.watch<ParentDetailsProvider>();
+
+    // ✅ لما تجي البيانات من الـ API حطيها بالـ controllers مرة وحدة بس
+    if (detailsProvider.parentData != null && !_dataLoaded) {
+      _childNameController.text = detailsProvider.parentData!['name'] ?? '';
+      _phoneController.text = detailsProvider.parentData!['mobile_number'] ?? '';
+      _dataLoaded = true;
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
-
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          widget.parentData == null
-              ? 'Add Parent'
-              : 'Edit Parent',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          widget.parentData == null ? 'Add Parent' : 'Edit Parent',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-
-      body: SingleChildScrollView(
+      body: detailsProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-
         child: Container(
           padding: const EdgeInsets.all(20),
-
           decoration: BoxDecoration(
             color: AppColors.cardWhite,
             borderRadius: BorderRadius.circular(20),
           ),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              /// Child Information
               sectionTitle('Child Information'),
-
               const SizedBox(height: 20),
 
               const Text('Child Name'),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _childNameController,
                 decoration: InputDecoration(
                   hintText: 'Enter child name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
 
@@ -141,65 +126,39 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
               Row(
                 children: [
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         const Text('Child Age'),
-
                         const SizedBox(height: 8),
-
                         TextField(
                           controller: _childAgeController,
                           keyboardType: TextInputType.number,
-
                           decoration: InputDecoration(
                             hintText: 'Enter age',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                         ),
                       ],
                     ),
                   ),
-
                   const SizedBox(width: 12),
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         const Text('Autism Level'),
-
                         const SizedBox(height: 8),
-
                         DropdownButtonFormField<String>(
                           value: selectedAutismLevel,
-
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-
                           items: autismLevels
-                              .map(
-                                (level) => DropdownMenuItem(
-                              value: level,
-                              child: Text(level),
-                            ),
-                          )
+                              .map((l) => DropdownMenuItem(value: l, child: Text(l)))
                               .toList(),
-
-                          onChanged: (value) {
-                            setState(() {
-                              selectedAutismLevel = value!;
-                            });
-                          },
+                          onChanged: (v) => setState(() => selectedAutismLevel = v!),
                         ),
                       ],
                     ),
@@ -208,104 +167,55 @@ class _AddParentScreenState extends State<AddParentScreen> {
               ),
 
               const SizedBox(height: 30),
-
               const Divider(),
-
               const SizedBox(height: 20),
 
-              /// Account Information
               sectionTitle('Account Information'),
-
               const SizedBox(height: 20),
 
               const Text('Phone Number'),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-
                 decoration: InputDecoration(
                   hintText: 'Enter phone number',
-
-                  prefixIcon: const Icon(
-                    Icons.phone_outlined,
-                  ),
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  prefixIcon: const Icon(Icons.phone_outlined),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
 
               const SizedBox(height: 20),
 
               const Text('Password'),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _passwordController,
                 obscureText: obscurePassword,
-
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.lock_outline,
-                  ),
-
+                  prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
-                    icon: Icon(
-                      obscurePassword
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        obscurePassword = !obscurePassword;
-                      });
-                    },
+                    icon: Icon(obscurePassword ? Icons.visibility : Icons.visibility_off),
+                    onPressed: () => setState(() => obscurePassword = !obscurePassword),
                   ),
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
 
               const SizedBox(height: 20),
 
               const Text('Assign Specialist'),
-
               const SizedBox(height: 8),
-
               DropdownButtonFormField<String>(
                 value: selectedSpecialist,
-
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.medical_services_outlined,
-                  ),
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  prefixIcon: const Icon(Icons.medical_services_outlined),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-
                 items: specialists
-                    .map(
-                      (specialist) => DropdownMenuItem(
-                    value: specialist,
-                    child: Text(specialist),
-                  ),
-                )
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                     .toList(),
-
-                onChanged: (value) {
-                  setState(() {
-                    selectedSpecialist = value!;
-                  });
-                },
+                onChanged: (v) => setState(() => selectedSpecialist = v!),
               ),
 
               const SizedBox(height: 35),
@@ -313,40 +223,51 @@ class _AddParentScreenState extends State<AddParentScreen> {
               SizedBox(
                 width: double.infinity,
                 height: 55,
-
                 child: ElevatedButton(
-                  // 3. تحديث الـ onPressed ليدعم استدعاء الـ API عند الحفظ
                   onPressed: () async {
-                    if (widget.parentData == null) {
-                      try {
-                        // CREATE NEW PARENT
-                        await _service.createParent(
-                          name: _childNameController.text.trim(),
-                          mobileNumber: _phoneController.text.trim(),
-                          password: _passwordController.text,
-                        );
+                    final error = _validate();
+                    if (error != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error), backgroundColor: Colors.red),
+                      );
+                      return;
+                    }
 
-                        if (context.mounted) {
-                          Navigator.pop(context, true);
-                        }
-                      } catch (e) {
-                        print("Error creating parent: $e");
-                      }
+                    final provider = context.read<ParentsProvider>();
+                    bool success;
+
+                    if (widget.parentData == null) {
+                      success = await provider.createParent(
+                        name: _childNameController.text.trim(),
+                        mobileNumber: _phoneController.text.trim(),
+                        password: _passwordController.text,
+                      );
                     } else {
-                      // UPDATE لاحقاً
+                      success = await provider.updateParent(
+                        id: int.parse(widget.parentData!['id'].toString()),
+                        name: _childNameController.text.trim(),
+                        mobileNumber: _phoneController.text.trim(),
+                        password: _passwordController.text,
+                      );
+                    }
+
+                    if (context.mounted) {
+                      if (success) {
+                        Navigator.pop(context, true);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(provider.errorMessage ?? 'Operation failed'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
                   },
-
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ).borderRadius,
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-
                   child: Text(
                     widget.parentData == null ? 'Save' : 'Update',
                     style: const TextStyle(

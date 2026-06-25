@@ -28,7 +28,7 @@ class ParentsService {
     return response.data['data'];
   }
 
-  // ✅ دالة إنشاء حساب ولي أمر جديد
+  // دالة إنشاء حساب ولي أمر جديد
   Future<void> createParent({
     required String name,
     required String mobileNumber,
@@ -44,6 +44,48 @@ class ParentsService {
         "mobile_number": mobileNumber,
         "password": password,
       },
+      options: Options(
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ),
+    );
+  }
+
+  // دالة تحديث بيانات ولي الأمر باستخدام Dio ومطابقة للـ Postman
+  Future<void> updateParent({
+    required int id,
+    required String name,
+    required String mobileNumber,
+    required String password,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    await _dio.put(
+      "/admin/users/parents/$id",
+      data: {
+        "name": name,
+        "mobile_number": mobileNumber,
+        "password": password,
+      },
+      options: Options(
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      ),
+    );
+  }
+
+  // ✅ دالة حذف ولي الأمر باستخدام Dio ومطابقة لطلب الـ Delete في الـ Postman
+  Future<void> deleteParent(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    await _dio.delete(
+      "/admin/users/parents/$id",
       options: Options(
         headers: {
           "Authorization": "Bearer $token",

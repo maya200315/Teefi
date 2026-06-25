@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teefi/views/auth/login_screen.dart';
+import 'package:teefi/views/admin/admin_dashboard_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,10 +17,19 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () async {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      if (!context.mounted) return;
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(
+          builder: (_) => token != null
+              ? const DashboardScreen()
+              : const LoginScreen(),
+        ),
       );
     });
   }

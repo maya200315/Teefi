@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:teefi/services/parents_service.dart';
+import 'package:provider/provider.dart';
+import 'package:teefi/providers/parents_provider.dart';
 import 'Add Users/add_parent_screen.dart';
 import 'Add Users/add_specialist_screen.dart';
 
@@ -13,10 +14,6 @@ class ManageUsersScreen extends StatefulWidget {
 class _ManageUsersScreenState extends State<ManageUsersScreen> {
   int _selectedTab = 0;
 
-  final ParentsService _parentsService = ParentsService();
-  List parents = [];
-  bool isLoading = true;
-
   final List<Map<String, String>> _specialists = [
     {'name': 'Dr. Lina', 'subtitle': 'Speech Therapist'},
     {'name': 'Dr. Omar', 'subtitle': 'Behavioral Specialist'},
@@ -25,27 +22,15 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   @override
   void initState() {
     super.initState();
-    _loadParents();
-  }
-
-  void _loadParents() async {
-    setState(() => isLoading = true);
-
-    try {
-      final data = await _parentsService.getParents();
-      setState(() {
-        parents = data;
-        isLoading = false;
-      });
-    } catch (e) {
-      print("Error loading parents: $e");
-      setState(() => isLoading = false);
-    }
+    // جلب الأهل عند فتح الشاشة
+    Future.microtask(() =>
+        context.read<ParentsProvider>().fetchParents());
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isParentsTab = _selectedTab == 0;
+    final parentsProvider = context.watch<ParentsProvider>();
+    final isParentsTab = _selectedTab == 0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FF),
@@ -65,8 +50,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            // Tabs
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFD8E8FA),
@@ -82,7 +65,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
             const SizedBox(height: 20),
 
-            // Title + Count
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -95,8 +77,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   ),
                 ),
                 Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: const Color(0xFFDFF0FF),
                     borderRadius: BorderRadius.circular(20),
@@ -104,7 +85,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   ),
                   child: Text(
                     isParentsTab
-                        ? '${parents.length} Registered'
+                        ? '${parentsProvider.parents.length} Registered'
                         : '${_specialists.length} Registered',
                     style: const TextStyle(
                       color: Color(0xFF2D5F9E),
@@ -119,14 +100,13 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
             Expanded(
               child: isParentsTab
-                  ? _buildParentsList()
+                  ? _buildParentsList(parentsProvider)
                   : _buildSpecialistsList(),
             ),
           ],
         ),
       ),
 
-      // Add Button
       bottomSheet: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: SizedBox(
@@ -137,27 +117,20 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               if (_selectedTab == 0) {
                 final result = await Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddParentScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const AddParentScreen()),
                 );
-
                 if (result == true) {
-                  _loadParents();
+                  context.read<ParentsProvider>().fetchParents();
                 }
               } else {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddSpecialistScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const AddSpecialistScreen()),
                 );
               }
             },
             icon: const Icon(Icons.add),
-            label: Text(
-              _selectedTab == 0 ? 'Add Parent' : 'Add Specialist',
-            ),
+            label: Text(_selectedTab == 0 ? 'Add Parent' : 'Add Specialist'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF5B9EF5),
               foregroundColor: Colors.white,
@@ -178,20 +151,16 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           if (index == 0) Navigator.pop(context);
         },
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.people), label: 'Users'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.article), label: 'Content'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Users'),
+          BottomNavigationBarItem(icon: Icon(Icons.article), label: 'Content'),
         ],
       ),
     );
   }
 
   Widget _tabButton(String label, int index) {
-    final isSelected = _selectedTab == index;
-
+    final bool isSelected = _selectedTab == index;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _selectedTab = index),
@@ -214,27 +183,23 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     );
   }
 
-  // ---------------- PARENTS ----------------
-
-  Widget _buildParentsList() {
-    if (isLoading) {
+  Widget _buildParentsList(ParentsProvider provider) {
+    if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (parents.isEmpty) {
+    if (provider.parents.isEmpty) {
       return const Center(
-        child: Text(
-          "No Parents Found",
-          style: TextStyle(color: Color(0xFFA0B4D0)),
-        ),
+        child: Text("No Parents Found",
+            style: TextStyle(color: Color(0xFFA0B4D0))),
       );
     }
 
     return ListView.separated(
-      itemCount: parents.length,
+      itemCount: provider.parents.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final parent = parents[index];
+        final parent = provider.parents[index];
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -245,12 +210,11 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           ),
           child: Row(
             children: [
-
               CircleAvatar(
                 radius: 28,
                 backgroundColor: const Color(0xFFDFF0FF),
                 child: Text(
-                  (parent['name'] ?? '?')[0],
+                  parent.name.isNotEmpty ? parent.name[0] : '?',
                   style: const TextStyle(
                     fontSize: 20,
                     color: Color(0xFF2D5F9E),
@@ -263,27 +227,24 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // ✅ FIXED
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      parent['name'] ?? '',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D5F9E),
-                      ),
-                    ),
-                    Text(
-                      parent['mobile_number'] ?? '',
-                      style: const TextStyle(
-                        color: Color(0xFFA0B4D0),
-                        fontSize: 13,
-                      ),
-                    ),
+                    Text(parent.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2D5F9E),
+                        )),
+                    Text(parent.mobileNumber,
+                        style: const TextStyle(
+                          color: Color(0xFFA0B4D0),
+                          fontSize: 13,
+                        )),
                   ],
                 ),
               ),
 
+              // زر التعديل
               IconButton(
                 icon: const Icon(Icons.edit, color: Color(0xFF5B9EF5)),
                 onPressed: () async {
@@ -292,24 +253,63 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     MaterialPageRoute(
                       builder: (_) => AddParentScreen(
                         parentData: {
-                          'id': parent['id'].toString(),
+                          'id': parent.id,
+                          'name': parent.name,
+                          'mobile_number': parent.mobileNumber,
                         },
                       ),
                     ),
                   );
-
                   if (result == true) {
-                    _loadParents();
+                    context.read<ParentsProvider>().fetchParents();
                   }
                 },
               ),
 
+              // زر الحذف
               IconButton(
                 icon: const Icon(Icons.delete, color: Color(0xFFDC2626)),
-                onPressed: () {
-                  setState(() {
-                    parents.removeAt(index);
-                  });
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Delete Parent"),
+                      content: const Text(
+                          "Are you sure you want to delete this parent?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text("Cancel"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFDC2626),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Delete"),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    final success = await context
+                        .read<ParentsProvider>()
+                        .deleteParent(parent.id);
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(success
+                              ? "Parent deleted successfully"
+                              : "Delete failed"),
+                          backgroundColor:
+                          success ? Colors.green : Colors.red,
+                        ),
+                      );
+                    }
+                  }
                 },
               ),
             ],
@@ -319,15 +319,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     );
   }
 
-  // ---------------- SPECIALISTS ----------------
-
   Widget _buildSpecialistsList() {
     return ListView.separated(
       itemCount: _specialists.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final user = _specialists[index];
-
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -338,14 +335,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                user['name'] ?? '',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D5F9E),
-                ),
-              ),
+              Text(user['name'] ?? '',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2D5F9E),
+                  )),
               IconButton(
                 icon: const Icon(Icons.edit, color: Color(0xFF5B9EF5)),
                 onPressed: () {
@@ -355,7 +350,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       builder: (_) => AddSpecialistScreen(
                         specialistData: {
                           'name': user['name'],
-                          'email': 'specialist@test.com',
+                          'email': 'test@test.com',
                           'password': '123456',
                           'specialty': user['subtitle'] ?? '',
                         },
