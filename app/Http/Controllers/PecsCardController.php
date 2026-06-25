@@ -10,32 +10,30 @@ use Illuminate\Support\Facades\Validator;
 
 class PecsCardController extends Controller
 {
-    // GET /api/pecs-cards
-    // GET /api/pecs-cards?category_id=1
-    public function index(Request $request)
-    {
-        $query = PecsCard::with('category');
 
-        if ($request->has('category_id')) {
-            $query->where('PECS_card_categoryid', $request->category_id);
-        }
+    // public function index(Request $request)
+    // {
+    //     $query = PecsCard::with('category');
 
-        $cards = $query->orderBy('created_at', 'desc')->get();
+    //     if ($request->has('category_id')) {
+    //         $query->where('PECS_card_categoryid', $request->category_id);
+    //     }
 
-        $cards->transform(function ($card) {
-            $card->image_url = $card->image
-                ? asset('storage/' . $card->image)
-                : null;
-            return $card;
-        });
+    //     $cards = $query->orderBy('created_at', 'desc')->get();
 
-        return response()->json([
-            'status' => true,
-            'data'   => $cards
-        ], 200);
-    }
+    //     $cards->transform(function ($card) {
+    //         $card->image_url = $card->image
+    //             ? asset('storage/' . $card->image)
+    //             : null;
+    //         return $card;
+    //     });
 
-    // GET /api/pecs-cards/{id}
+    //     return response()->json([
+    //         'status' => true,
+    //         'data'   => $cards
+    //     ], 200);
+    // }
+
     public function show(int $id)
     {
         $card = PecsCard::with('category')->find($id);
@@ -57,7 +55,6 @@ class PecsCardController extends Controller
         ], 200);
     }
 
-    // POST /api/pecs-cards  (multipart/form-data)
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -90,7 +87,6 @@ class PecsCardController extends Controller
         ], 201);
     }
 
-    // PUT /api/pecs-cards/{id}  (multipart/form-data)
     public function update(Request $request, int $id)
     {
         $card = PecsCard::find($id);
@@ -143,7 +139,6 @@ class PecsCardController extends Controller
         ], 200);
     }
 
-    // DELETE /api/pecs-cards/{id}
     public function destroy(int $id)
     {
         $card = PecsCard::find($id);

@@ -9,11 +9,10 @@ use Illuminate\Support\Facades\Validator;
 
 class PecsCardCategoryController extends Controller
 {
-    // GET /api/pecs-card-categories
     public function index()
     {
         $categories = PecsCardCategory::withCount('pecsCards')
-            ->orderBy('code')
+            ->orderBy('id')
             ->get();
 
         return response()->json([
@@ -22,7 +21,6 @@ class PecsCardCategoryController extends Controller
         ], 200);
     }
 
-    // GET /api/pecs-card-categories/{id}
     public function show(int $id)
     {
         $category = PecsCardCategory::with('pecsCards')->find($id);
@@ -40,67 +38,55 @@ class PecsCardCategoryController extends Controller
         ], 200);
     }
 
-    // POST /api/pecs-card-categories
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'code' => 'required|integer|unique:pecs_card_categories,code',
-        ]);
+   public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name'  => 'required|string|max:255',
+        // 'image' => 'nullable|string', 
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $category = PecsCardCategory::create([
-            'name' => $request->name,
-            'code' => $request->code,
-        ]);
+    $category = PecsCardCategory::create([
+        'name'  => $request->name,
+        // 'image' => $request->image,
+    ]);
 
         return response()->json([
             'status'  => true,
-            'message' => 'Category created successfully',
+            'message' => 'PECS Card created successfully',
             'data'    => $category
         ], 201);
     }
+public function update(Request $request, int $id)
+{
+    $category = PecsCardCategory::find($id); 
 
-    // PUT /api/pecs-card-categories/{id}
-    public function update(Request $request, int $id)
-    {
-        $category = PecsCardCategory::find($id);
-
-        if (!$category) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Category not found'
-            ], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'code' => 'sometimes|integer|unique:pecs_card_categories,code,' . $id,
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $category->update($request->only(['name', 'code']));
-
+    if (!$category) {
         return response()->json([
-            'status'  => true,
-            'message' => 'Category updated successfully',
-            'data'    => $category
-        ], 200);
+            'status'  => false,
+            'message' => 'Category not found'
+        ], 404);
     }
 
-    // DELETE /api/pecs-card-categories/{id}
+    $validator = Validator::make($request->all(), [
+        'name'  => 'sometimes|string|max:255',
+        // 'image' => 'sometimes|nullable|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    $category->update($request->only(['name', 'image']));
+
+    return response()->json([
+        'status'  => true,
+        'message' => 'Category updated successfully',
+        'data'    => $category
+    ], 200);
+}
     public function destroy(int $id)
     {
         $category = PecsCardCategory::find($id);
