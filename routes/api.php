@@ -34,7 +34,7 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
   Route::put('/articles/{id}',    [ArticleController::class, 'update']);
   Route::delete('/articles/{id}', [ArticleController::class, 'destroy']);
 
-  // PECS Card Categories  (Screen 3 - tab selector)
+  // PECS Card Categories  (واحهة 3)
 
   Route::get('/pecs-card-categories',         [PecsCardCategoryController::class, 'index']);
   Route::get('/pecs-card-categories/{id}',    [PecsCardCategoryController::class, 'show']);
@@ -43,21 +43,11 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
   Route::delete('/pecs-card-categories/{id}', [PecsCardCategoryController::class, 'destroy']);
 
   // ----------------------------------------------------------
-  // PECS Cards  (Screen 3, 4 & 5)
-  // GET /api/pecs-cards               → كل البطاقات
-  // GET /api/pecs-cards?category_id=1 → بطاقات فئة معينة (Screen 4)
-  // POST /api/pecs-cards              → إضافة بطاقة (Screen 5) multipart/form-data
-  // ----------------------------------------------------------
-  Route::get('/pecs-cards',         [PecsCardController::class, 'index']);
+  
+  // Route::get('/pecs-cards',         [PecsCardController::class, 'index']);
   Route::get('/pecs-cards/{id}',    [PecsCardController::class, 'show']);
   Route::post('/pecs-cards',        [PecsCardController::class, 'store']);
   Route::put('/pecs-cards/{id}',    [PecsCardController::class, 'update']);
   Route::delete('/pecs-cards/{id}', [PecsCardController::class, 'destroy']);
 
-  // ----------------------------------------------------------
-  // PECS Card Child  (ربط البطاقات بالأطفال)
-  // ----------------------------------------------------------
-  Route::get('/pecs-card-child/{child_id}', [PecsCardChildController::class, 'index']);
-  Route::post('/pecs-card-child',           [PecsCardChildController::class, 'store']);
-  Route::delete('/pecs-card-child/{id}',    [PecsCardChildController::class, 'destroy']);
 });
