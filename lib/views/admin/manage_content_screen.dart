@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/app_colors.dart';
 import '../../../providers/content_provider.dart';
+import '../../../providers/pecs_provider.dart';
 import '../../../models/article_model.dart';
+import '../../../models/pecs_category_model.dart';
 import 'package:teefi/views/admin/content/add_article_screen.dart';
-import 'package:teefi/views/admin/content/add_pecs_screen.dart';
 import 'package:teefi/views/admin/content/pecs_category_screen.dart';
 
 class ManageContentScreen extends StatefulWidget {
@@ -23,24 +24,25 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
   void initState() {
     super.initState();
     _selectedTab = widget.initialTab;
-    Future.microtask(() =>
-        context.read<ContentProvider>().fetchArticles());
+    Future.microtask(() {
+      context.read<ContentProvider>().fetchArticles();
+      context.read<PecsProvider>().fetchCategories();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ContentProvider>();
+    final contentProvider = context.watch<ContentProvider>();
+    final pecsProvider = context.watch<PecsProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
-
       appBar: AppBar(
         title: const Text('Manage Content',
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -57,18 +59,15 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
             Expanded(
               child: _selectedTab == 1
-                  ? _buildArticlesList(provider)
-                  : _buildCategoriesList(provider),
+                  ? _buildArticlesList(contentProvider)
+                  : _buildCategoriesList(pecsProvider),
             ),
           ],
         ),
       ),
-
       bottomSheet: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: SizedBox(
@@ -94,7 +93,6 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
           ),
         ),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 2,
         selectedItemColor: AppColors.primary,
@@ -112,21 +110,17 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-
     if (provider.articles.isEmpty) {
       return const Center(
         child: Text("No Articles Found",
             style: TextStyle(color: AppColors.textGrey)),
       );
     }
-
     return ListView.separated(
       itemCount: provider.articles.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final ArticleModel article = provider.articles[index];
-
-        // ✅ تعديل 1 — عرض التاريخ مختصر (2024-02-15 بس)
         final String shortDate = article.datetime.length >= 10
             ? article.datetime.substring(0, 10)
             : article.datetime;
@@ -148,15 +142,11 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                 ),
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
               ),
-
-              // ✅ تعديل 2 — جلب المقال من API قبل فتح شاشة التعديل
               IconButton(
                 onPressed: () async {
                   final provider = context.read<ContentProvider>();
                   final success = await provider.fetchArticle(article.id);
-
                   if (!context.mounted) return;
-
                   if (success) {
                     await Navigator.push(
                       context,
@@ -166,14 +156,11 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                         ),
                       ),
                     );
-                    if (context.mounted) {
-                      provider.fetchArticles();
-                    }
+                    if (context.mounted) provider.fetchArticles();
                   }
                 },
                 icon: const Icon(Icons.edit, color: AppColors.primary),
               ),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -186,7 +173,6 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                           color: AppColors.textDark,
                         )),
                     const SizedBox(height: 4),
-                    // ✅ التاريخ المختصر
                     Text(shortDate,
                         style: const TextStyle(color: AppColors.textGrey)),
                   ],
@@ -208,15 +194,29 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     );
   }
 
-  Widget _buildCategoriesList(ContentProvider provider) {
+  // ✅ يستخدم PecsProvider و PecsCategoryModel من API
+  Widget _buildCategoriesList(PecsProvider provider) {
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (provider.categories.isEmpty) {
+      return const Center(
+        child: Text("No Categories Found",
+            style: TextStyle(color: AppColors.textGrey)),
+      );
+    }
     return ListView.separated(
-      itemCount: provider.pecsCategories.length,
+      itemCount: provider.categories.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final category = provider.pecsCategories[index];
+        final PecsCategoryModel category = provider.categories[index];
         return GestureDetector(
-          onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => PecsCategoryScreen(category: category))),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PecsCategoryScreen(category: category),
+            ),
+          ),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -230,16 +230,16 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                   onPressed: () => _showDeleteDialog(
                     context: context,
                     onConfirm: () =>
-                        context.read<ContentProvider>().deleteCategory(index),
+                        context.read<PecsProvider>().deleteCategory(category.id),
                   ),
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                 ),
                 IconButton(
-                  onPressed: () => _showEditCategoryDialog(context, index),
+                  onPressed: () => _showEditCategoryDialog(context, category),
                   icon: const Icon(Icons.edit, color: AppColors.primary),
                 ),
                 Expanded(
-                  child: Text(category,
+                  child: Text(category.name,
                       textAlign: TextAlign.right,
                       style: const TextStyle(
                         fontSize: 16,
@@ -280,10 +280,12 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (controller.text.trim().isNotEmpty) {
-                context.read<ContentProvider>().addCategory(controller.text.trim());
                 Navigator.pop(context);
+                await context.read<PecsProvider>().createCategory(
+                  name: controller.text.trim(),
+                );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
@@ -294,9 +296,8 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     );
   }
 
-  void _showEditCategoryDialog(BuildContext context, int index) {
-    final controller = TextEditingController(
-        text: context.read<ContentProvider>().pecsCategories[index]);
+  void _showEditCategoryDialog(BuildContext context, PecsCategoryModel category) {
+    final controller = TextEditingController(text: category.name);
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -310,10 +311,13 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (controller.text.trim().isNotEmpty) {
-                context.read<ContentProvider>().updateCategory(index, controller.text.trim());
                 Navigator.pop(context);
+                await context.read<PecsProvider>().updateCategory(
+                  id: category.id,
+                  name: controller.text.trim(),
+                );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),

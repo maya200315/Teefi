@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/pecs_provider.dart';
+import '../../../models/pecs_category_model.dart';
 import 'package:teefi/views/admin/content/add_pecs_screen.dart';
 
 class PecsCategoryScreen extends StatefulWidget {
-  final String category;
+  final PecsCategoryModel category;
 
   const PecsCategoryScreen({
     super.key,
@@ -15,45 +18,16 @@ class PecsCategoryScreen extends StatefulWidget {
 }
 
 class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
-  // 1. تعديل البيانات الافتراضية لتستخدم مسار الصور (Assets) بدلاً من الإيموجي
-  final Map<String, List<Map<String, String>>> _allCards = {
-    'Food': [
-      {'image': 'assets/images/ggoo.png', 'title': 'تفاحة'},
-      {'image': 'assets/images/ggoo.png', 'title': 'خبز'},
-      {'image': 'assets/images/ggoo.png', 'title': 'مشروب'},
-      {'image': 'assets/images/ggoo.png', 'title': 'دجاج'},
-    ],
-    'Play': [
-      {'image': 'assets/images/ggoo.png', 'title': 'ألعاب'},
-      {'image': 'assets/images/ggoo.png', 'title': 'دمية'},
-      {'image': 'assets/images/ggoo.png', 'title': 'رسم'},
-    ],
-    'Routine': [
-      {'image': 'assets/images/ggoo.png', 'title': 'نوم'},
-      {'image': 'assets/images/ggoo.png', 'title': 'حمام'},
-      {'image': 'assets/images/ggoo.png', 'title': 'ملابس'},
-    ],
-    'Emotions': [
-      {'image': 'assets/images/ggoo.png', 'title': 'سعيد'},
-      {'image': 'assets/images/ggoo.png', 'title': 'حزين'},
-      {'image': 'assets/images/ggoo.png', 'title': 'غاضب'},
-    ],
-    'School': [
-      {'image': 'assets/images/ggoo.png', 'title': 'كتاب'},
-      {'image': 'assets/images/ggoo.png', 'title': 'قلم'},
-      {'image': 'assets/images/ggoo.png', 'title': 'نشاط'},
-    ],
-  };
-
-  late List<Map<String, String>> _cards;
 
   @override
   void initState() {
     super.initState();
-    _cards = List.from(_allCards[widget.category] ?? []);
+    // جلب الكاتيجوري مع كارداتها من API
+    Future.microtask(() =>
+        context.read<PecsProvider>().fetchCategory(widget.category.id));
   }
 
-  void _showDeleteDialog(int index) {
+  void _showDeleteDialog(int cardId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -65,9 +39,12 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
             child: const Text('No'),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() => _cards.removeAt(index));
+            onPressed: () async {
               Navigator.pop(context);
+              await context.read<PecsProvider>().deleteCard(
+                cardId: cardId,
+                categoryId: widget.category.id,
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
@@ -77,47 +54,25 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
     );
   }
 
-  void _openAddOrEditCard({Map<String, String>? cardData, int? index}) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddPecsScreen(
-          // نمرر الـ cardData في حال التعديل
-          pecsData: cardData,
-          category: widget.category,
-        ),
-      ),
-    );
-
-    if (result != null && result is Map<String, String>) {
-      setState(() {
-        if (index != null) {
-          // تعديل الكارت الحالي بالبيانات المرجعة الجديدة
-          _cards[index] = result;
-        } else {
-          // إضافة كارت جديد للقائمة
-          _cards.add(result);
-        }
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<PecsProvider>();
+    final cards = provider.selectedCategory?.pecsCards ?? [];
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FF),
-
       appBar: AppBar(
         title: Text(
-          widget.category,
+          widget.category.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF5B9EF5),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-
-      body: _cards.isEmpty
+      body: provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : cards.isEmpty
           ? const Center(
         child: Text(
           'لا توجد بطاقات',
@@ -133,10 +88,9 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
             crossAxisSpacing: 12,
             childAspectRatio: 0.8,
           ),
-          itemCount: _cards.length,
+          itemCount: cards.length,
           itemBuilder: (context, index) {
-            final card = _cards[index];
-            final imagePath = card['image'] ?? card['imagePath'] ?? '';
+            final card = cards[index];
 
             return Container(
               decoration: BoxDecoration(
@@ -147,13 +101,11 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
-                  // 2. استبدال الـ Text التابع للإيموجي بمكون الـ Image المحدث
-                  _buildCardImage(imagePath),
-
+                  _buildCardImage(card.imageUrl),
                   const SizedBox(height: 6),
                   Text(
-                    card['title']!,
+                    card.title,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -161,30 +113,30 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-
-                  // أيقونات التعديل والحذف
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       GestureDetector(
-                        onTap: () => _openAddOrEditCard(
-                          cardData: card,
-                          index: index,
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          size: 18,
-                          color: Color(0xFF5B9EF5),
-                        ),
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AddPecsScreen(
+                                cardModel: card,
+                                categoryId: widget.category.id,
+                              ),
+                            ),
+                          );
+                          if (context.mounted) {
+                            context.read<PecsProvider>().fetchCategory(widget.category.id);
+                          }
+                        },
+                        child: const Icon(Icons.edit, size: 18, color: Color(0xFF5B9EF5)),
                       ),
                       const SizedBox(width: 12),
                       GestureDetector(
-                        onTap: () => _showDeleteDialog(index),
-                        child: const Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: Colors.red,
-                        ),
+                        onTap: () => _showDeleteDialog(card.id),
+                        child: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
                       ),
                     ],
                   ),
@@ -194,15 +146,25 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
           },
         ),
       ),
-
-      // زر إضافة كارد جديد
       bottomSheet: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: SizedBox(
           width: double.infinity,
           height: 55,
           child: ElevatedButton.icon(
-            onPressed: () => _openAddOrEditCard(),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddPecsScreen(
+                    categoryId: widget.category.id,
+                  ),
+                ),
+              );
+              if (context.mounted) {
+                context.read<PecsProvider>().fetchCategory(widget.category.id);
+              }
+            },
             icon: const Icon(Icons.add),
             label: const Text('Add PECS Card'),
             style: ElevatedButton.styleFrom(
@@ -218,28 +180,25 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
     );
   }
 
-  // ميثود ذكية لعرض الصورة سواء كانت مخزنة في الأصول (Assets) أو مرفوعة حديثاً من ذاكرة الهاتف (File)
-  Widget _buildCardImage(String path) {
-    if (path.startsWith('assets/')) {
-      return Image.asset(
-        path,
+  Widget _buildCardImage(String imageUrl) {
+    if (imageUrl.startsWith('http')) {
+      return Image.network(
+        imageUrl,
         width: 60,
         height: 60,
         fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const Icon(
+          Icons.image_not_supported_outlined,
+          size: 40,
+          color: Color(0xFFA0B4D0),
+        ),
       );
-    } else if (path.isNotEmpty) {
-      return Image.file(
-        File(path),
-        width: 60,
-        height: 60,
-        fit: BoxFit.cover,
-      );
+    } else if (imageUrl.startsWith('assets/')) {
+      return Image.asset(imageUrl, width: 60, height: 60, fit: BoxFit.cover);
+    } else if (imageUrl.isNotEmpty) {
+      return Image.file(File(imageUrl), width: 60, height: 60, fit: BoxFit.cover);
     } else {
-      return const Icon(
-        Icons.image_not_supported_outlined,
-        size: 40,
-        color: Color(0xFFA0B4D0),
-      );
+      return const Icon(Icons.image_not_supported_outlined, size: 40, color: Color(0xFFA0B4D0));
     }
   }
 }

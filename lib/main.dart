@@ -6,6 +6,7 @@ import 'providers/parents_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/parent_details_provider.dart';
 import 'providers/content_provider.dart'; // ✅ أضفناه
+import 'providers/pecs_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => ParentDetailsProvider()),
         ChangeNotifierProvider(create: (_) => ContentProvider()), // ✅ أضفناه
+        ChangeNotifierProvider(create: (_) => PecsProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
