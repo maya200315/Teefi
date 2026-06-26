@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:teefi/views/splash/splash_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/parents_provider.dart';
 import 'providers/dashboard_provider.dart';
-import 'views/splash/splash_screen.dart';
 import 'providers/parent_details_provider.dart';
-
+import 'providers/content_provider.dart'; // ✅ أضفناه
 
 void main() {
   runApp(const MyApp());
@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ParentsProvider()),
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => ParentDetailsProvider()),
+        ChangeNotifierProvider(create: (_) => ContentProvider()), // ✅ أضفناه
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

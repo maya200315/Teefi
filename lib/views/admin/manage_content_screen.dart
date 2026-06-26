@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/app_colors.dart';
+import '../../../providers/content_provider.dart';
+import '../../../models/article_model.dart';
 import 'package:teefi/views/admin/content/add_article_screen.dart';
 import 'package:teefi/views/admin/content/add_pecs_screen.dart';
 import 'package:teefi/views/admin/content/pecs_category_screen.dart';
@@ -7,10 +10,7 @@ import 'package:teefi/views/admin/content/pecs_category_screen.dart';
 class ManageContentScreen extends StatefulWidget {
   final int initialTab;
 
-  const ManageContentScreen({
-    super.key,
-    this.initialTab = 1,
-  });
+  const ManageContentScreen({super.key, this.initialTab = 1});
 
   @override
   State<ManageContentScreen> createState() => _ManageContentScreenState();
@@ -19,37 +19,25 @@ class ManageContentScreen extends StatefulWidget {
 class _ManageContentScreenState extends State<ManageContentScreen> {
   late int _selectedTab;
 
-  final List<Map<String, String>> _articles = [
-    {'title': 'How to Handle Autism Tantrums', 'category': 'Behavior'},
-    {'title': 'Communication Enhancement Strategies', 'category': 'Communication'},
-    {'title': 'Daily Positive Behavior Reinforcement', 'category': 'Daily Care'},
-  ];
-
-  // الكاتيغوري هون — مش الكروت مباشرة
-  final List<String> _pecsCategories = [
-    'Food',
-    'Play',
-    'Routine',
-    'Emotions',
-    'School',
-  ];
-
   @override
   void initState() {
     super.initState();
     _selectedTab = widget.initialTab;
+    // جلب المقالات من الـ API عند فتح الشاشة
+    Future.microtask(() =>
+        context.read<ContentProvider>().fetchArticles());
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ContentProvider>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
 
       appBar: AppBar(
-        title: const Text(
-          'Manage Content',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Manage Content',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -58,7 +46,6 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // التابات
             Container(
               decoration: BoxDecoration(
                 color: AppColors.primaryLight,
@@ -74,11 +61,10 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
 
             const SizedBox(height: 20),
 
-            // المحتوى
             Expanded(
               child: _selectedTab == 1
-                  ? _buildArticlesList()
-                  : _buildCategoriesList(),
+                  ? _buildArticlesList(provider)
+                  : _buildCategoriesList(provider),
             ),
           ],
         ),
@@ -92,14 +78,10 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
           child: ElevatedButton.icon(
             onPressed: () {
               if (_selectedTab == 1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddArticleScreen(),
-                  ),
-                );
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const AddArticleScreen()));
               } else {
-                _showAddCategoryDialog();
+                _showAddCategoryDialog(context);
               }
             },
             icon: const Icon(Icons.add),
@@ -108,8 +90,7 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
+                  borderRadius: BorderRadius.circular(30)),
             ),
           ),
         ),
@@ -128,13 +109,24 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     );
   }
 
-  // ليستة المقالات
-  Widget _buildArticlesList() {
+  Widget _buildArticlesList(ContentProvider provider) {
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.articles.isEmpty) {
+      return const Center(
+        child: Text("No Articles Found",
+            style: TextStyle(color: AppColors.textGrey)),
+      );
+    }
+
     return ListView.separated(
-      itemCount: _articles.length,
+      itemCount: provider.articles.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final item = _articles[index];
+        final ArticleModel article = provider.articles[index];
+
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -146,7 +138,9 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
             children: [
               IconButton(
                 onPressed: () => _showDeleteDialog(
-                  onConfirm: () => setState(() => _articles.removeAt(index)),
+                  context: context,
+                  onConfirm: () =>
+                      context.read<ContentProvider>().deleteArticle(article.id),
                 ),
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
               ),
@@ -154,7 +148,7 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AddArticleScreen(articleData: item),
+                    builder: (_) => AddArticleScreen(articleModel: article),
                   ),
                 ),
                 icon: const Icon(Icons.edit, color: AppColors.primary),
@@ -163,17 +157,16 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      item['title']!,
-                      textAlign: TextAlign.right,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textDark,
-                      ),
-                    ),
+                    Text(article.title,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textDark,
+                        )),
                     const SizedBox(height: 4),
-                    Text(item['category']!, style: const TextStyle(color: AppColors.textGrey)),
+                    Text(article.datetime,
+                        style: const TextStyle(color: AppColors.textGrey)),
                   ],
                 ),
               ),
@@ -193,20 +186,15 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     );
   }
 
-  // ليستة الكاتيغوري
-  Widget _buildCategoriesList() {
+  Widget _buildCategoriesList(ContentProvider provider) {
     return ListView.separated(
-      itemCount: _pecsCategories.length,
+      itemCount: provider.pecsCategories.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final category = _pecsCategories[index];
+        final category = provider.pecsCategories[index];
         return GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PecsCategoryScreen(category: category),
-            ),
-          ),
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => PecsCategoryScreen(category: category))),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -216,28 +204,26 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
             ),
             child: Row(
               children: [
-                // حذف الكاتيغوري
                 IconButton(
                   onPressed: () => _showDeleteDialog(
-                    onConfirm: () => setState(() => _pecsCategories.removeAt(index)),
+                    context: context,
+                    onConfirm: () =>
+                        context.read<ContentProvider>().deleteCategory(index),
                   ),
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                 ),
-                // تعديل اسم الكاتيغوري
                 IconButton(
-                  onPressed: () => _showEditCategoryDialog(index),
+                  onPressed: () => _showEditCategoryDialog(context, index),
                   icon: const Icon(Icons.edit, color: AppColors.primary),
                 ),
                 Expanded(
-                  child: Text(
-                    category,
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
-                  ),
+                  child: Text(category,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                      )),
                 ),
                 const SizedBox(width: 10),
                 Container(
@@ -256,12 +242,11 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     );
   }
 
-  // ديالوج إضافة كاتيغوري
-  void _showAddCategoryDialog() {
+  void _showAddCategoryDialog(BuildContext context) {
     final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: const Text('Add Category'),
         content: TextField(
           controller: controller,
@@ -271,14 +256,11 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
-                setState(() => _pecsCategories.add(controller.text.trim()));
+                context.read<ContentProvider>().addCategory(controller.text.trim());
                 Navigator.pop(context);
               }
             },
@@ -290,12 +272,12 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     );
   }
 
-  // ديالوج تعديل اسم الكاتيغوري
-  void _showEditCategoryDialog(int index) {
-    final controller = TextEditingController(text: _pecsCategories[index]);
+  void _showEditCategoryDialog(BuildContext context, int index) {
+    final controller = TextEditingController(
+        text: context.read<ContentProvider>().pecsCategories[index]);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: const Text('Edit Category'),
         content: TextField(
           controller: controller,
@@ -304,14 +286,11 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
-                setState(() => _pecsCategories[index] = controller.text.trim());
+                context.read<ContentProvider>().updateCategory(index, controller.text.trim());
                 Navigator.pop(context);
               }
             },
@@ -323,18 +302,17 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
     );
   }
 
-  // ديالوج تأكيد الحذف
-  void _showDeleteDialog({required VoidCallback onConfirm}) {
+  void _showDeleteDialog({
+    required BuildContext context,
+    required VoidCallback onConfirm,
+  }) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: const Text('Delete'),
         content: const Text('Are you sure you want to delete this item?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('No'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('No')),
           ElevatedButton(
             onPressed: () {
               onConfirm();
@@ -359,14 +337,12 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
             color: isSelected ? AppColors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(30),
           ),
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.textDark,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Text(title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.textDark,
+                fontWeight: FontWeight.bold,
+              )),
         ),
       ),
     );
