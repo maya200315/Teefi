@@ -80,7 +80,7 @@ class PecsService {
   }) async {
     final formData = FormData.fromMap({
       "title": title,
-      "PECS_card_category_id": categoryId,
+      "PECS_card_categoryid": categoryId,
       "image": await MultipartFile.fromFile(imagePath),
     });
 
@@ -96,18 +96,19 @@ class PecsService {
     required int id,
     required String title,
     required int categoryId,
-    String? imagePath, // اختياري — بس لو غيرت الصورة
+    String? imagePath,
   }) async {
     final map = <String, dynamic>{
       "title": title,
-      "PECS_card_category_id": categoryId,
+      "PECS_card_category_id": categoryId, // ✅ تأكدي من الاسم الصح
+      "_method": "PUT",                     // ✅ method spoofing
     };
 
     if (imagePath != null) {
       map["image"] = await MultipartFile.fromFile(imagePath);
     }
 
-    await _dio.put(
+    await _dio.post(              // ✅ post بدل put
       "/admin/pecs-cards/$id",
       data: FormData.fromMap(map),
       options: await _authOptions(),
