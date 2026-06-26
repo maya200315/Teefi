@@ -24,27 +24,48 @@ class ArticleService {
     return response.data['data'];
   }
 
+  // جلب تفاصيل مقال محدد بناءً على الـ ID ومطابقة للـ Postman
+  Future<Map<String, dynamic>> getArticle(int id) async {
+    final response = await _dio.get(
+      "/admin/articles/$id",
+      options: await _authOptions(),
+    );
+
+    return response.data['data'];
+  }
+
   // إضافة مقال
   Future<void> createArticle({
     required String title,
     required String content,
+    required String datetime,
   }) async {
     await _dio.post(
       "/admin/articles",
-      data: {"title": title, "content": content},
+      data: {"title": title, "content": content,  "datetime": datetime,},
       options: await _authOptions(),
     );
   }
 
-  // تعديل مقال
+  // ✅ تعديل مقال ببناء الـ Body بشكل ديناميكي ومطابقة شروطك
   Future<void> updateArticle({
     required int id,
     required String title,
     required String content,
   }) async {
+    final Map<String, dynamic> body = {};
+
+    if (title.isNotEmpty) {
+      body["title"] = title;
+    }
+
+    if (content.isNotEmpty) {
+      body["content"] = content;
+    }
+
     await _dio.put(
       "/admin/articles/$id",
-      data: {"title": title, "content": content},
+      data: body,
       options: await _authOptions(),
     );
   }

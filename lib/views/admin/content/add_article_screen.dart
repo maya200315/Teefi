@@ -16,12 +16,20 @@ class _AddArticleScreenState extends State<AddArticleScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
 
+  // ✅ المتغير المضاف للتاريخ
+  DateTime _selectedDate = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     if (widget.articleModel != null) {
       _titleController.text = widget.articleModel!.title;
       _contentController.text = widget.articleModel!.content;
+      try {
+        _selectedDate = DateTime.parse(widget.articleModel!.datetime);
+      } catch (e) {
+        _selectedDate = DateTime.now();
+      }
     }
   }
 
@@ -67,8 +75,12 @@ class _AddArticleScreenState extends State<AddArticleScreen> {
             const SizedBox(height: 6),
             TextField(
               controller: _titleController,
+              textDirection: TextDirection.rtl,
+              keyboardType: TextInputType.multiline, // ✅ تم إضافة هاد
+              textInputAction: TextInputAction.next,  // ✅ تم إضافة هاد
               decoration: InputDecoration(
-                hintText: 'Enter article title...',
+                hintText: 'أدخل عنوان المقال...',
+                hintTextDirection: TextDirection.rtl,
                 hintStyle: const TextStyle(color: Color(0xFFA0B4D0)),
                 filled: true,
                 fillColor: Colors.white,
@@ -78,6 +90,47 @@ class _AddArticleScreenState extends State<AddArticleScreen> {
                     borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
                 focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Color(0xFF5B9EF5))),
+              ),
+            ),
+
+            // ✅ الـ Date Picker widget المضاف بعد الـ title field
+            const SizedBox(height: 16),
+            const Text('Date',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2D5F9E),
+                )),
+            const SizedBox(height: 6),
+            GestureDetector(
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDate,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                );
+                if (picked != null) {
+                  setState(() => _selectedDate = picked);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFD8E8FA)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Icon(Icons.calendar_today, color: Color(0xFF5B9EF5)),
+                    Text(
+                      '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2,'0')}-${_selectedDate.day.toString().padLeft(2,'0')}',
+                      style: const TextStyle(color: Color(0xFF2D5F9E)),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -93,8 +146,12 @@ class _AddArticleScreenState extends State<AddArticleScreen> {
             TextField(
               controller: _contentController,
               maxLines: 10,
+              textDirection: TextDirection.rtl,
+              keyboardType: TextInputType.multiline, // ✅ تم إضافة هاد
+              textInputAction: TextInputAction.newline, // ✅ تم إضافة هاد
               decoration: InputDecoration(
-                hintText: 'Write article content here...',
+                hintText: 'اكتبي محتوى المقال هنا...',
+                hintTextDirection: TextDirection.rtl,
                 hintStyle: const TextStyle(color: Color(0xFFA0B4D0)),
                 filled: true,
                 fillColor: Colors.white,
@@ -126,9 +183,11 @@ class _AddArticleScreenState extends State<AddArticleScreen> {
                   bool success;
 
                   if (widget.articleModel == null) {
+                    // ✅ الاستدعاء الصحيح مع تمرير الـ datetime المُعدل
                     success = await provider.createArticle(
                       title: _titleController.text.trim(),
                       content: _contentController.text.trim(),
+                      datetime: '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2,'0')}-${_selectedDate.day.toString().padLeft(2,'0')} 00:00:00',
                     );
                   } else {
                     success = await provider.updateArticle(

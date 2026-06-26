@@ -23,7 +23,6 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
   void initState() {
     super.initState();
     _selectedTab = widget.initialTab;
-    // جلب المقالات من الـ API عند فتح الشاشة
     Future.microtask(() =>
         context.read<ContentProvider>().fetchArticles());
   }
@@ -127,6 +126,11 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
       itemBuilder: (context, index) {
         final ArticleModel article = provider.articles[index];
 
+        // ✅ تعديل 1 — عرض التاريخ مختصر (2024-02-15 بس)
+        final String shortDate = article.datetime.length >= 10
+            ? article.datetime.substring(0, 10)
+            : article.datetime;
+
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -144,15 +148,32 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                 ),
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
               ),
+
+              // ✅ تعديل 2 — جلب المقال من API قبل فتح شاشة التعديل
               IconButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AddArticleScreen(articleModel: article),
-                  ),
-                ),
+                onPressed: () async {
+                  final provider = context.read<ContentProvider>();
+                  final success = await provider.fetchArticle(article.id);
+
+                  if (!context.mounted) return;
+
+                  if (success) {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddArticleScreen(
+                          articleModel: provider.selectedArticle,
+                        ),
+                      ),
+                    );
+                    if (context.mounted) {
+                      provider.fetchArticles();
+                    }
+                  }
+                },
                 icon: const Icon(Icons.edit, color: AppColors.primary),
               ),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -165,7 +186,8 @@ class _ManageContentScreenState extends State<ManageContentScreen> {
                           color: AppColors.textDark,
                         )),
                     const SizedBox(height: 4),
-                    Text(article.datetime,
+                    // ✅ التاريخ المختصر
+                    Text(shortDate,
                         style: const TextStyle(color: AppColors.textGrey)),
                   ],
                 ),

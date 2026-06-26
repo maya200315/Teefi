@@ -10,9 +10,15 @@ class ContentProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
+  // ✅ إضافة المتغير لتخزين المقال المحدد
+  ArticleModel? _selectedArticle;
+
   List<ArticleModel> get articles => _articles;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+
+  // ✅ Getter للمقال المحدد
+  ArticleModel? get selectedArticle => _selectedArticle;
 
   Future<void> fetchArticles() async {
     _isLoading = true;
@@ -30,12 +36,28 @@ class ContentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ✅ دالة جلب تفاصيل مقال محدد وتخزينه في المتغير
+  Future<bool> fetchArticle(int id) async {
+    try {
+      // ✅ حذف _isLoading هون — ما نحتاجه لجلب مقال واحد
+      final data = await _articleService.getArticle(id);
+      _selectedArticle = ArticleModel.fromJson(data);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = "Failed to load article";
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> createArticle({
     required String title,
     required String content,
+    required String datetime,
   }) async {
     try {
-      await _articleService.createArticle(title: title, content: content);
+      await _articleService.createArticle(title: title, content: content, datetime: datetime,);
       await fetchArticles();
       return true;
     } catch (e) {
