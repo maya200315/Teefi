@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->enum('autism_level', ['mild', 'medium', 'severe']);
             $table->foreignId('specialist_id')->constrained('specialists')->cascadeOnDelete();
+            $table->integer('age')->nullable();
+
             $table->timestamps();
         });
     }

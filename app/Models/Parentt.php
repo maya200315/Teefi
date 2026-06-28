@@ -15,11 +15,17 @@ class Parentt extends Model
         'age',
     ];
 
+    protected $casts = [
+        'age' => 'integer',
+    ];
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
-
     public function specialist()
     {
         return $this->belongsTo(Specialist::class);
