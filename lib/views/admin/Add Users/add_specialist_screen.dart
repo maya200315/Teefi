@@ -33,8 +33,9 @@ class _AddSpecialistScreenState extends State<AddSpecialistScreen> {
       _nameController.text = widget.specialistModel!.name;
       _phoneController.text = widget.specialistModel!.mobileNumber;
 
-      // التأكد من أن القيمة القادمة من الـ API موجودة بالفعل ضمن القائمة لتفادي كراش الـ Dropdown
+      // التعديل الجديد: التأكد من أن القيمة القادمة من الـ API موجودة بالفعل ضمن القائمة لتفادي كراش الـ Dropdown
       final specialty = widget.specialistModel!.specialty;
+
       selectedSpecialty = specialties.contains(specialty) ? specialty : null;
     }
   }

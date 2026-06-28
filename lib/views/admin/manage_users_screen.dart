@@ -21,14 +21,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     super.initState();
     Future.microtask(() {
       context.read<ParentsProvider>().fetchParents();
-      context.read<SpecialistsProvider>().fetchSpecialists(); // ✅
+      context.read<SpecialistsProvider>().fetchSpecialists();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final parentsProvider = context.watch<ParentsProvider>();
-    final specialistsProvider = context.watch<SpecialistsProvider>(); // ✅
+    final specialistsProvider = context.watch<SpecialistsProvider>();
     final isParentsTab = _selectedTab == 0;
 
     return Scaffold(
@@ -82,7 +82,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             Expanded(
               child: isParentsTab
                   ? _buildParentsList(parentsProvider)
-                  : _buildSpecialistsList(specialistsProvider), // ✅
+                  : _buildSpecialistsList(specialistsProvider),
             ),
           ],
         ),
@@ -246,7 +246,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     );
   }
 
-  // ✅ معدّل — يستخدم SpecialistsProvider
   Widget _buildSpecialistsList(SpecialistsProvider provider) {
     if (provider.isLoading) return const Center(child: CircularProgressIndicator());
     if (provider.specialists.isEmpty) {
@@ -284,16 +283,30 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   ],
                 ),
               ),
+              // ✅ التعديل الجديد لزر تعديل الأخصائي
               IconButton(
                 icon: const Icon(Icons.edit, color: Color(0xFF5B9EF5)),
                 onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AddSpecialistScreen(specialistModel: specialist),
-                    ),
-                  );
-                  if (result == true) context.read<SpecialistsProvider>().fetchSpecialists();
+                  // جلب الأخصائي من API أولاً
+                  final success = await context
+                      .read<SpecialistsProvider>()
+                      .fetchSpecialist(specialist.id);
+                  if (!context.mounted) return;
+                  if (success) {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddSpecialistScreen(
+                          specialistModel: context
+                              .read<SpecialistsProvider>()
+                              .selectedSpecialist,
+                        ),
+                      ),
+                    );
+                    if (result == true) {
+                      context.read<SpecialistsProvider>().fetchSpecialists();
+                    }
+                  }
                 },
               ),
               IconButton(
