@@ -19,6 +19,7 @@ class ParentSeeder extends Seeder
         $parent->user_id = $mohammad->id;
         $parent->autism_level = 'mild';
         $parent->specialist_id = $sara->id;
+        $parent->age = 5;
         $parent->save();
 
         $fatima = User::where('mobile_number', '0911000005')->first();
@@ -26,6 +27,7 @@ class ParentSeeder extends Seeder
         $parent->user_id = $fatima->id;
         $parent->autism_level = 'severe';
         $parent->specialist_id = $khaled->id;
+        $parent->age = 10;
         $parent->save();
     }
 }

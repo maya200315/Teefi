@@ -12,6 +12,7 @@ class Parentt extends Model
         'user_id',
         'autism_level',
         'specialist_id',
+        'age',
     ];
 
     public function user()
