@@ -37,28 +37,38 @@ class PecsCardCategoryController extends Controller
             'data'   => $category
         ], 200);
     }
-
-   public function store(Request $request)
+public function store(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'name'  => 'required|string|max:255',
-        // 'image' => 'nullable|string', 
+        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
     ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('pecs_categories', 'public');
+    }
 
     $category = PecsCardCategory::create([
         'name'  => $request->name,
-        // 'image' => $request->image,
+        'image' => $imagePath,
     ]);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'PECS Card created successfully',
-            'data'    => $category
-        ], 201);
-    }
-public function update(Request $request, int $id)
+    return response()->json([
+        'status'  => true,
+        'message' => 'PECS Card created successfully',
+        'data'    => $category
+    ], 201);
+}public function update(Request $request, int $id)
 {
-    $category = PecsCardCategory::find($id); 
+    $category = PecsCardCategory::find($id);
 
     if (!$category) {
         return response()->json([
@@ -69,7 +79,7 @@ public function update(Request $request, int $id)
 
     $validator = Validator::make($request->all(), [
         'name'  => 'sometimes|string|max:255',
-        // 'image' => 'sometimes|nullable|string',
+        'image' => 'sometimes|nullable|image|mimes:jpeg,png,jpg|max:2048',
     ]);
 
     if ($validator->fails()) {
@@ -79,7 +89,16 @@ public function update(Request $request, int $id)
         ], 422);
     }
 
-    $category->update($request->only(['name', 'image']));
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('pecs_categories', 'public');
+        $category->image = $imagePath;
+    }
+
+    if ($request->has('name')) {
+        $category->name = $request->name;
+    }
+
+    $category->save();
 
     return response()->json([
         'status'  => true,
