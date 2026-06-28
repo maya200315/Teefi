@@ -10,12 +10,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-           $table->string('name');
+            $table->string('name');
             $table->string('mobile_number')->nullable()->unique();
             $table->string('password')->nullable();
             $table->rememberToken();
             $table->foreignId('Roleid')->constrained('roles')->onDelete('cascade');
- $table->timestamps();
+            $table->timestamps();
         });
     }
 

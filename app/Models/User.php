@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
-        use HasApiTokens;
+    use HasApiTokens;
 
     protected $fillable = [
         'password',
@@ -58,5 +58,14 @@ class User extends Authenticatable
     public function articles(): HasMany
     {
         return $this->hasMany(Article::class, 'Userid');
+    }
+    public function specialist()
+    {
+        return $this->hasOne(Specialist::class);
+    }
+
+    public function parentt()
+    {
+        return $this->hasOne(Parentt::class);
     }
 }
