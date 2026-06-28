@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             DailyNoteSeeder::class,
             WeeklyReportSeeder::class,
             RecommendationSeeder::class,
+            SpecialistSeeder::class,
         ]);
     }
 }

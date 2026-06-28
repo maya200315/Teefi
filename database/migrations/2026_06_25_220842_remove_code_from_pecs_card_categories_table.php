@@ -9,20 +9,24 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('pecs_card_categories', function (Blueprint $table) {
-            $table->dropColumn('code');
+            if (Schema::hasColumn('pecs_card_categories', 'code')) {
+                $table->dropColumn('code');
+            }
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
         Schema::table('pecs_card_categories', function (Blueprint $table) {
-            //
+            if (!Schema::hasColumn('pecs_card_categories', 'code')) {
+                $table->integer('code')->after('name');
+            }
+    
         });
     }
 };
