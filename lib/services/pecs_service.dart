@@ -100,7 +100,7 @@ class PecsService {
   }) async {
     final map = <String, dynamic>{
       "title": title,
-      "PECS_card_category_id": categoryId, // ✅ تأكدي من الاسم الصح
+      "PECS_card_categoryid": categoryId, // ✅ تأكدي من الاسم الصح
       "_method": "PUT",                     // ✅ method spoofing
     };
 
@@ -108,7 +108,7 @@ class PecsService {
       map["image"] = await MultipartFile.fromFile(imagePath);
     }
 
-    await _dio.post(              // ✅ post بدل put
+    await _dio.post(
       "/admin/pecs-cards/$id",
       data: FormData.fromMap(map),
       options: await _authOptions(),

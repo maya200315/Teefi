@@ -181,6 +181,7 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
   }
 
   Widget _buildCardImage(String imageUrl) {
+    print('IMAGE URL: $imageUrl');
     if (imageUrl.startsWith('http')) {
       return Image.network(
         imageUrl,

@@ -40,7 +40,7 @@ class PecsCardModel {
       id: json['id'],
       title: json['title'],
       image: json['image'] ?? '',
-      imageUrl: json['image_url'] ?? '',
+      imageUrl: (json['image_url'] ?? ''),
       categoryId: json['PECS_card_category_id'] is int
           ? json['PECS_card_category_id']
           : int.tryParse(json['PECS_card_category_id'].toString()) ?? 0,
