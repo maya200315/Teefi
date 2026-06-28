@@ -9,7 +9,7 @@ class PecsCardCategory extends Model
 {
     protected $table = 'pecs_card_categories';
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name','image'];
 
     public function pecsCards(): HasMany
     {
