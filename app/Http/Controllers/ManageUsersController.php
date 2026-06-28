@@ -79,10 +79,10 @@ class ManageUsersController extends Controller
             if ($type === 'parents') {
                 $rules['autism_level']  = 'required|in:mild,medium,severe';
                 $rules['specialist_id'] = 'required|exists:specialists,id';
+                $rules['age'] = 'required|numeric|min:0';
             }
 
             $validated = $request->validate($rules);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -112,11 +112,11 @@ class ManageUsersController extends Controller
                     'user_id'       => $user->id,
                     'autism_level'  => $validated['autism_level'],
                     'specialist_id' => $validated['specialist_id'],
+                    'age' => $validated['age'],
                 ]);
             }
 
             DB::commit();
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Something went wrong.', 'error' => $e->getMessage()], 500);
@@ -156,10 +156,10 @@ class ManageUsersController extends Controller
             if ($type === 'parents') {
                 $rules['autism_level']  = 'sometimes|required|in:mild,medium,severe';
                 $rules['specialist_id'] = 'sometimes|required|exists:specialists,id';
+                $rules['age'] = 'sometimes|required|numeric|min:0';
             }
 
             $validated = $request->validate($rules);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -183,11 +183,11 @@ class ManageUsersController extends Controller
                 $data = [];
                 if (isset($validated['autism_level']))  $data['autism_level']  = $validated['autism_level'];
                 if (isset($validated['specialist_id'])) $data['specialist_id'] = $validated['specialist_id'];
+                if (isset($validated['age']))           $data['age']           = $validated['age']; // ✅ ضيفها
                 if ($data) $user->parentt()->update($data);
             }
 
             DB::commit();
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Something went wrong.'], 500);

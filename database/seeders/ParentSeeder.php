@@ -15,19 +15,27 @@ class ParentSeeder extends Seeder
         $khaled = Specialist::where('specialty', 'Behavior Therapy')->first();
 
         $mohammad = User::where('mobile_number', '0911000004')->first();
-        $parent = new Parentt();
-        $parent->user_id = $mohammad->id;
-        $parent->autism_level = 'mild';
-        $parent->specialist_id = $sara->id;
-        $parent->age = 5;
-        $parent->save();
+        if ($mohammad && $sara) {
+            Parentt::updateOrCreate(
+                ['user_id' => $mohammad->id],
+                [
+                    'autism_level' => 'mild',
+                    'specialist_id' => $sara->id,
+                    'age' => 5,
+                ]
+            );
+        }
 
         $fatima = User::where('mobile_number', '0911000005')->first();
-        $parent = new Parentt();
-        $parent->user_id = $fatima->id;
-        $parent->autism_level = 'severe';
-        $parent->specialist_id = $khaled->id;
-        $parent->age = 10;
-        $parent->save();
+        if ($fatima && $khaled) {
+            Parentt::updateOrCreate(
+                ['user_id' => $fatima->id],
+                [
+                    'autism_level' => 'severe',
+                    'specialist_id' => $khaled->id,
+                    'age' => 10,
+                ]
+            );
+        }
     }
 }
