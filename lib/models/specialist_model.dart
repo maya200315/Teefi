@@ -13,7 +13,7 @@ class SpecialistModel {
 
   factory SpecialistModel.fromJson(Map<String, dynamic> json) {
     return SpecialistModel(
-      id: json['id'],
+      id: json['specialist']?['id'] ?? 0,
       name: json['name'],
       mobileNumber: json['mobile_number'] ?? '',
       specialty: json['specialist']?['specialty'] ?? '',

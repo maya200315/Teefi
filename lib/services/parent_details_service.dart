@@ -5,9 +5,7 @@ class ParentDetailsService {
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: "http://10.0.2.2:8000/api",
-      headers: {
-        "Accept": "application/json",
-      },
+      headers: {"Accept": "application/json"},
     ),
   );
 
@@ -17,13 +15,9 @@ class ParentDetailsService {
 
     final response = await _dio.get(
       "/admin/users/parents/$id",
-      options: Options(
-        headers: {
-          "Authorization": "Bearer $token",
-        },
-      ),
+      options: Options(headers: {"Authorization": "Bearer $token"}),
     );
-
+    print('PARENT DATA: ${response.data}'); // ✅ أضيفي هاد
     return response.data['data'];
   }
 }

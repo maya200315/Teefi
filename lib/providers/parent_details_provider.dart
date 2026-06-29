@@ -11,6 +11,7 @@ class ParentDetailsProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<void> fetchParentById(int id) async {
+    _parentData = null;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -22,6 +23,14 @@ class ParentDetailsProvider extends ChangeNotifier {
     }
 
     _isLoading = false;
+    notifyListeners();
+  }
+
+  // ✅ مهم — نظفي البيانات لما تفتحي شاشة إضافة جديدة
+  void clear() {
+    _parentData = null;
+    _isLoading = false;
+    _errorMessage = null;
     notifyListeners();
   }
 }

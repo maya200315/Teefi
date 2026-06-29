@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import '../services/parents_service.dart';
 import '../models/parent_model.dart';
 
@@ -13,7 +14,6 @@ class ParentsProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // جلب الأهل
   Future<void> fetchParents() async {
     _isLoading = true;
     _errorMessage = null;
@@ -30,40 +30,42 @@ class ParentsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // إضافة أهل
   Future<bool> createParent({
     required String name,
     required String mobileNumber,
     required String password,
+    required String autismLevel,
+    required int specialistId,
+    int? age,
   }) async {
-    // ✅ التحقق من العمر والحقول قبل الإرسال
-    if (name.isEmpty || mobileNumber.isEmpty || password.isEmpty) {
-      _errorMessage = 'Please fill all fields';
-      notifyListeners();
-      return false;
-    }
-
     try {
       await _service.createParent(
         name: name,
         mobileNumber: mobileNumber,
         password: password,
+        autismLevel: autismLevel,
+        specialistId: specialistId,
+        age: age,
       );
-      await fetchParents(); // تحديث القائمة
+      await fetchParents();
       return true;
     } catch (e) {
+      // ✅ اطبعي التفاصيل
+      if (e is DioException && e.response != null) {
+        print('ERROR BODY: ${e.response?.data}');
+      }
+      print('CREATE PARENT ERROR: $e');
       _errorMessage = 'Failed to create parent';
       notifyListeners();
       return false;
     }
   }
 
-  // تعديل أهل
   Future<bool> updateParent({
     required int id,
     required String name,
     required String mobileNumber,
-    required String password,
+    String? password,
   }) async {
     try {
       await _service.updateParent(
@@ -81,7 +83,6 @@ class ParentsProvider extends ChangeNotifier {
     }
   }
 
-  // حذف أهل
   Future<bool> deleteParent(int id) async {
     try {
       await _service.deleteParent(id);

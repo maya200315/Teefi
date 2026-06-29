@@ -21,6 +21,7 @@ class SpecialistService {
       "/admin/users/specialists",
       options: await _authOptions(),
     );
+    print('SPECIALISTS: ${response.data}'); // ✅ أضيفي هاد
     return response.data['data'];
   }
 

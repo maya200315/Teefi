@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/app_colors.dart';
 import '../../../providers/parents_provider.dart';
 import '../../../providers/parent_details_provider.dart';
+import '../../../providers/specialists_provider.dart';
 
 class AddParentScreen extends StatefulWidget {
   final Map<String, dynamic>? parentData;
@@ -19,23 +20,28 @@ class _AddParentScreenState extends State<AddParentScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  String selectedAutismLevel = 'Mild';
-  String selectedSpecialist = 'Dr. Ahmad';
+  String selectedAutismLevel = 'Mild'; // ✅ القيمة الافتراضية
+  int? selectedSpecialistId; // ✅ ربط حقيقي بالـ API
   bool obscurePassword = true;
-  bool _dataLoaded = false; // ✅ عشان ما نعبي الـ controllers أكثر من مرة
+  bool _dataLoaded = false;
 
-  final List<String> autismLevels = ['Mild', 'Moderate', 'Severe'];
-  final List<String> specialists = ['Dr. Ahmad', 'Dr. Sarah', 'Dr. Mohammad'];
+  final List<String> autismLevels = ['Mild', 'Medium', 'Severe'];
 
   @override
   void initState() {
     super.initState();
-    final id = widget.parentData?['id'];
-    if (id != null) {
-      Future.microtask(() =>
-          context.read<ParentDetailsProvider>().fetchParentById(
-              int.tryParse(id.toString()) ?? 0));
-    }
+    Future.microtask(() {
+      context.read<SpecialistsProvider>().fetchSpecialists();
+
+      final id = widget.parentData?['id'];
+      if (id != null) {
+        context.read<ParentDetailsProvider>().fetchParentById(
+            int.tryParse(id.toString()) ?? 0);
+      } else {
+        // ✅ نظفي البيانات القديمة لما تكوني بوضع إضافة
+        context.read<ParentDetailsProvider>().clear();
+      }
+    });
   }
 
   @override
@@ -60,6 +66,10 @@ class _AddParentScreenState extends State<AddParentScreen> {
     if (widget.parentData == null && _passwordController.text.isEmpty) {
       return 'Please enter password';
     }
+
+    // ✅ التحقق من اختيار أخصائي
+    if (selectedSpecialistId == null) return 'Please select a specialist';
+
     return null;
   }
 
@@ -78,10 +88,19 @@ class _AddParentScreenState extends State<AddParentScreen> {
   Widget build(BuildContext context) {
     final detailsProvider = context.watch<ParentDetailsProvider>();
 
-    // ✅ لما تجي البيانات من الـ API حطيها بالـ controllers مرة وحدة بس
+    // ✅ التعديل الجديد: استخراج البيانات وتعبئة حقول الـ Age والـ Autism Level والـ Specialist بالكامل عند التعديل
     if (detailsProvider.parentData != null && !_dataLoaded) {
-      _childNameController.text = detailsProvider.parentData!['name'] ?? '';
-      _phoneController.text = detailsProvider.parentData!['mobile_number'] ?? '';
+      final data = detailsProvider.parentData!;
+      final parentt = data['parentt'] as Map<String, dynamic>?;
+
+      _childNameController.text = data['name'] ?? '';
+      _phoneController.text = data['mobile_number'] ?? '';
+      _childAgeController.text = parentt?['age']?.toString() ?? '';
+
+      final level = parentt?['autism_level'] ?? 'mild';
+      selectedAutismLevel = level[0].toUpperCase() + level.substring(1);
+      selectedSpecialistId = parentt?['specialist_id'];
+
       _dataLoaded = true;
     }
 
@@ -118,7 +137,8 @@ class _AddParentScreenState extends State<AddParentScreen> {
                 controller: _childNameController,
                 decoration: InputDecoration(
                   hintText: 'Enter child name',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
 
@@ -137,7 +157,8 @@ class _AddParentScreenState extends State<AddParentScreen> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             hintText: 'Enter age',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                         ),
                       ],
@@ -153,12 +174,15 @@ class _AddParentScreenState extends State<AddParentScreen> {
                         DropdownButtonFormField<String>(
                           value: selectedAutismLevel,
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           items: autismLevels
-                              .map((l) => DropdownMenuItem(value: l, child: Text(l)))
+                              .map((l) => DropdownMenuItem(
+                              value: l, child: Text(l)))
                               .toList(),
-                          onChanged: (v) => setState(() => selectedAutismLevel = v!),
+                          onChanged: (v) =>
+                              setState(() => selectedAutismLevel = v!),
                         ),
                       ],
                     ),
@@ -181,7 +205,8 @@ class _AddParentScreenState extends State<AddParentScreen> {
                 decoration: InputDecoration(
                   hintText: 'Enter phone number',
                   prefixIcon: const Icon(Icons.phone_outlined),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
 
@@ -195,27 +220,42 @@ class _AddParentScreenState extends State<AddParentScreen> {
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
-                    icon: Icon(obscurePassword ? Icons.visibility : Icons.visibility_off),
-                    onPressed: () => setState(() => obscurePassword = !obscurePassword),
+                    icon: Icon(obscurePassword
+                        ? Icons.visibility
+                        : Icons.visibility_off),
+                    onPressed: () =>
+                        setState(() => obscurePassword = !obscurePassword),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
 
               const SizedBox(height: 20),
 
+              // ✅ Dropdown الأخصائيين من API
               const Text('Assign Specialist'),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: selectedSpecialist,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.medical_services_outlined),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                items: specialists
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                    .toList(),
-                onChanged: (v) => setState(() => selectedSpecialist = v!),
+              Consumer<SpecialistsProvider>(
+                builder: (context, specialistsProvider, _) {
+                  final specialists = specialistsProvider.specialists;
+                  return DropdownButtonFormField<int>(
+                    value: selectedSpecialistId,
+                    decoration: InputDecoration(
+                      prefixIcon:
+                      const Icon(Icons.medical_services_outlined),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    hint: const Text('Select Specialist'),
+                    items: specialists
+                        .map((s) => DropdownMenuItem(
+                        value: s.id, child: Text(s.name)))
+                        .toList(),
+                    onChanged: (v) =>
+                        setState(() => selectedSpecialistId = v),
+                  );
+                },
               ),
 
               const SizedBox(height: 35),
@@ -228,7 +268,9 @@ class _AddParentScreenState extends State<AddParentScreen> {
                     final error = _validate();
                     if (error != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(error), backgroundColor: Colors.red),
+                        SnackBar(
+                            content: Text(error),
+                            backgroundColor: Colors.red),
                       );
                       return;
                     }
@@ -237,14 +279,19 @@ class _AddParentScreenState extends State<AddParentScreen> {
                     bool success;
 
                     if (widget.parentData == null) {
+                      // ✅ إضافة مع كل الحقول
                       success = await provider.createParent(
                         name: _childNameController.text.trim(),
                         mobileNumber: _phoneController.text.trim(),
                         password: _passwordController.text,
+                        autismLevel: selectedAutismLevel.toLowerCase(),
+                        age: int.tryParse(_childAgeController.text.trim()),
+                        specialistId: selectedSpecialistId!,
                       );
                     } else {
                       success = await provider.updateParent(
-                        id: int.parse(widget.parentData!['id'].toString()),
+                        id: int.parse(
+                            widget.parentData!['id'].toString()),
                         name: _childNameController.text.trim(),
                         mobileNumber: _phoneController.text.trim(),
                         password: _passwordController.text,
@@ -257,7 +304,8 @@ class _AddParentScreenState extends State<AddParentScreen> {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(provider.errorMessage ?? 'Operation failed'),
+                            content: Text(
+                                provider.errorMessage ?? 'Operation failed'),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -266,7 +314,8 @@ class _AddParentScreenState extends State<AddParentScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
                   ),
                   child: Text(
                     widget.parentData == null ? 'Save' : 'Update',
