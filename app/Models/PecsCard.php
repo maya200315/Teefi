@@ -12,6 +12,13 @@ class PecsCard extends Model
 
     protected $fillable = ['title', 'image', 'PECS_card_categoryid'];
 
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
+    
     public function category(): BelongsTo
     {
         return $this->belongsTo(PecsCardCategory::class, 'PECS_card_categoryid');
