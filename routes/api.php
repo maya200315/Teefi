@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ManageUsersController;
@@ -7,6 +6,8 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PecsCardCategoryController;
 use App\Http\Controllers\PecsCardChildController;
 use App\Http\Controllers\PecsCardController;
+use App\Http\Controllers\UserArticleController;
+use App\Http\Controllers\UserHomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class, 'login']);
@@ -42,12 +43,41 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
   Route::put('/pecs-card-categories/{id}',    [PecsCardCategoryController::class, 'update']);
   Route::delete('/pecs-card-categories/{id}', [PecsCardCategoryController::class, 'destroy']);
 
-  // ----------------------------------------------------------
-  
+
   // Route::get('/pecs-cards',         [PecsCardController::class, 'index']);
   Route::get('/pecs-cards/{id}',    [PecsCardController::class, 'show']);
   Route::post('/pecs-cards',        [PecsCardController::class, 'store']);
   Route::put('/pecs-cards/{id}',    [PecsCardController::class, 'update']);
   Route::delete('/pecs-cards/{id}', [PecsCardController::class, 'destroy']);
+});
 
+// ----------------------------------------------------------
+// routes/api.php
+Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
+
+    // ── Home Screen ──
+    Route::get('/home', [UserHomeController::class, 'index']);
+
+    // Articles (مكتبة)
+    Route::get('/articles',      [UserArticleController::class, 'index']);
+    Route::get('/articles/{id}', [UserArticleController::class, 'show']);
+
+    // // PECS Cards للطفل
+    // Route::get('/pecs-cards',         [PecsCardChildController::class, 'index']);
+    // Route::get('/pecs-cards/{id}',    [PecsCardChildController::class, 'show']);
+
+    // // Behaviors
+    // Route::get('/behaviors',          [BehaviorController::class, 'index']);
+    // Route::post('/behaviors',         [BehaviorController::class, 'store']);
+
+    // // Reports
+    // Route::get('/weekly-reports',     [WeeklyReportController::class, 'index']);
+    // Route::get('/weekly-reports/{id}',[WeeklyReportController::class, 'show']);
+
+    // // Daily Notes
+    // Route::get('/daily-notes',        [DailyNoteController::class, 'index']);
+    // Route::post('/daily-notes',       [DailyNoteController::class, 'store']);
+
+    // // Recommendations
+    // Route::get('/recommendations',    [RecommendationController::class, 'index']);
 });
