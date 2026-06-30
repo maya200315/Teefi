@@ -13,7 +13,7 @@ class ChildSeeder extends Seeder
             [
                 'name'         => 'Omar Ali',
                 'age'          => 7,
-                'autism_level' => 'Level 1',
+                'autism_level' => 'Mild',
                 'Userid'       => 4, // Parent: Mohammad Ali
                 'created_at'   => now(),
                 'updated_at'   => now(),
@@ -21,7 +21,7 @@ class ChildSeeder extends Seeder
             [
                 'name'         => 'Lina Ali',
                 'age'          => 5,
-                'autism_level' => 'Level 2',
+                'autism_level' => 'Moderate',
                 'Userid'       => 4,
                 'created_at'   => now(),
                 'updated_at'   => now(),
@@ -29,7 +29,7 @@ class ChildSeeder extends Seeder
             [
                 'name'         => 'Youssef Hassan',
                 'age'          => 9,
-                'autism_level' => 'Level 3',
+                'autism_level' => 'Severe',
                 'Userid'       => 5, // Parent: Fatima Hassan
                 'created_at'   => now(),
                 'updated_at'   => now(),
