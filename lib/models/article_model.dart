@@ -12,11 +12,21 @@ class ArticleModel {
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
+    // ✅ تحويل التاريخ
+    String rawDate = json['datetime'] ?? '';
+    String formattedDate = '';
+    try {
+      final dt = DateTime.parse(rawDate);
+      formattedDate = '${dt.day}/${dt.month}/${dt.year}';
+    } catch (e) {
+      formattedDate = rawDate;
+    }
+
     return ArticleModel(
       id: json['id'],
       title: json['title'],
       content: json['content'],
-      datetime: json['datetime'] ?? '',
+      datetime: formattedDate,
     );
   }
 }

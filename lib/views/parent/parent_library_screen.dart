@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:teefi/providers/content_provider.dart';
 import 'package:teefi/views/parent/parent_article_detail_screen.dart';
 
-class ParentLibraryScreen extends StatelessWidget {
+class ParentLibraryScreen extends StatefulWidget {
   const ParentLibraryScreen({super.key});
 
-  final List<Map<String, String>> _articles = const [
-    {
-      'title': 'كيفية التعامل مع نوبات الغضب',
-      'subtitle': 'نصائح عملية لمساعدة طفلك في التحكم بمشاعره',
-      'date': 'May 10, 2026',
-    },
-    {
-      'title': 'استراتيجيات تعزيز التواصل',
-      'subtitle': 'طرق فعّالة لتحسين مهارات التواصل لدى طفلك',
-      'date': 'May 5, 2026',
-    },
-    {
-      'title': 'تعزيز السلوك الإيجابي يومياً',
-      'subtitle': 'دليل عملي لتشجيع السلوكيات الإيجابية في الحياة اليومية',
-      'date': 'May 1, 2026',
-    },
-  ];
+  @override
+  State<ParentLibraryScreen> createState() => _ParentLibraryScreenState();
+}
+
+class _ParentLibraryScreenState extends State<ParentLibraryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+        context.read<ContentProvider>().fetchUserArticles());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ContentProvider>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FF),
       appBar: AppBar(
@@ -52,21 +50,29 @@ class ParentLibraryScreen extends StatelessWidget {
         ],
         elevation: 0,
       ),
-      body: ListView.separated(
+      body: provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : provider.articles.isEmpty
+          ? const Center(
+          child: Text('No articles found',
+              style: TextStyle(color: Color(0xFFA0B4D0))))
+          : ListView.separated(
         padding: const EdgeInsets.all(16),
-        itemCount: _articles.length,
+        itemCount: provider.articles.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
-          final article = _articles[index];
+          final article = provider.articles[index];
           return _ArticleCard(
-            article: article,
+            title: article.title,
+            subtitle: article.content,
+            date: article.datetime,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => ParentArticleDetailScreen(
-                  title: article['title']!,
-                  subtitle: article['subtitle']!,
-                  date: article['date']!,
+                  title: article.title,
+                  subtitle: article.content,
+                  date: article.datetime,
                 ),
               ),
             ),
@@ -100,10 +106,17 @@ class ParentLibraryScreen extends StatelessWidget {
 }
 
 class _ArticleCard extends StatelessWidget {
-  final Map<String, String> article;
+  final String title;
+  final String subtitle;
+  final String date;
   final VoidCallback onTap;
 
-  const _ArticleCard({required this.article, required this.onTap});
+  const _ArticleCard({
+    required this.title,
+    required this.subtitle,
+    required this.date,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +138,6 @@ class _ArticleCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // العنوان والأيقونة
             Row(
               children: [
                 Container(
@@ -140,7 +152,7 @@ class _ArticleCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    article['title']!,
+                    title,
                     textAlign: TextAlign.right,
                     style: const TextStyle(
                       fontSize: 15,
@@ -151,33 +163,24 @@ class _ArticleCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 8),
-
-            // الوصف
             Text(
-              article['subtitle']!,
+              subtitle,
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFFA0B4D0),
-              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 13, color: Color(0xFFA0B4D0)),
             ),
-
             const SizedBox(height: 12),
-
-            // التاريخ والسهم
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Icon(Icons.arrow_back,
                     color: Color(0xFF5B9EF5), size: 20),
                 Text(
-                  article['date']!,
+                  date,
                   style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFFA0B4D0),
-                  ),
+                      fontSize: 12, color: Color(0xFFA0B4D0)),
                 ),
               ],
             ),

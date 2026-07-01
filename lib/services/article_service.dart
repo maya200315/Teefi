@@ -15,7 +15,7 @@ class ArticleService {
     return Options(headers: {"Authorization": "Bearer $token"});
   }
 
-  // جلب كل المقالات
+  // جلب كل المقالات للأدمن
   Future<List<dynamic>> getArticles() async {
     final response = await _dio.get(
       "/admin/articles",
@@ -24,13 +24,21 @@ class ArticleService {
     return response.data['data'];
   }
 
-  // جلب تفاصيل مقال محدد بناءً على الـ ID ومطابقة للـ Postman
+  // ✅ جلب مقالات الأهل
+  Future<List<dynamic>> getUserArticles() async {
+    final response = await _dio.get(
+      "/user/articles",
+      options: await _authOptions(),
+    );
+    return response.data['data'];
+  }
+
+  // جلب تفاصيل مقال محدد
   Future<Map<String, dynamic>> getArticle(int id) async {
     final response = await _dio.get(
       "/admin/articles/$id",
       options: await _authOptions(),
     );
-
     return response.data['data'];
   }
 
@@ -42,26 +50,20 @@ class ArticleService {
   }) async {
     await _dio.post(
       "/admin/articles",
-      data: {"title": title, "content": content,  "datetime": datetime,},
+      data: {"title": title, "content": content, "datetime": datetime},
       options: await _authOptions(),
     );
   }
 
-  // ✅ تعديل مقال ببناء الـ Body بشكل ديناميكي ومطابقة شروطك
+  // تعديل مقال
   Future<void> updateArticle({
     required int id,
     required String title,
     required String content,
   }) async {
     final Map<String, dynamic> body = {};
-
-    if (title.isNotEmpty) {
-      body["title"] = title;
-    }
-
-    if (content.isNotEmpty) {
-      body["content"] = content;
-    }
+    if (title.isNotEmpty) body["title"] = title;
+    if (content.isNotEmpty) body["content"] = content;
 
     await _dio.put(
       "/admin/articles/$id",

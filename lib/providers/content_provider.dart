@@ -5,21 +5,17 @@ import '../models/article_model.dart';
 class ContentProvider extends ChangeNotifier {
   final ArticleService _articleService = ArticleService();
 
-  // ---- Articles ----
   List<ArticleModel> _articles = [];
   bool _isLoading = false;
   String? _errorMessage;
-
-  // ✅ إضافة المتغير لتخزين المقال المحدد
   ArticleModel? _selectedArticle;
 
   List<ArticleModel> get articles => _articles;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-
-  // ✅ Getter للمقال المحدد
   ArticleModel? get selectedArticle => _selectedArticle;
 
+  // جلب مقالات الأدمن
   Future<void> fetchArticles() async {
     _isLoading = true;
     _errorMessage = null;
@@ -36,10 +32,25 @@ class ContentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ دالة جلب تفاصيل مقال محدد وتخزينه في المتغير
+  // ✅ جلب مقالات الأهل
+  Future<void> fetchUserArticles() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final data = await _articleService.getUserArticles();
+      _articles = data.map((e) => ArticleModel.fromJson(e)).toList();
+    } catch (e) {
+      _errorMessage = 'Failed to load articles';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<bool> fetchArticle(int id) async {
     try {
-      // ✅ حذف _isLoading هون — ما نحتاجه لجلب مقال واحد
       final data = await _articleService.getArticle(id);
       _selectedArticle = ArticleModel.fromJson(data);
       notifyListeners();
@@ -57,7 +68,8 @@ class ContentProvider extends ChangeNotifier {
     required String datetime,
   }) async {
     try {
-      await _articleService.createArticle(title: title, content: content, datetime: datetime,);
+      await _articleService.createArticle(
+          title: title, content: content, datetime: datetime);
       await fetchArticles();
       return true;
     } catch (e) {
@@ -73,7 +85,8 @@ class ContentProvider extends ChangeNotifier {
     required String content,
   }) async {
     try {
-      await _articleService.updateArticle(id: id, title: title, content: content);
+      await _articleService.updateArticle(
+          id: id, title: title, content: content);
       await fetchArticles();
       return true;
     } catch (e) {
@@ -95,7 +108,6 @@ class ContentProvider extends ChangeNotifier {
     }
   }
 
-  // ---- PECS Categories (static لهلق) ----
   List<String> _pecsCategories = [
     'Food', 'Play', 'Routine', 'Emotions', 'School',
   ];
