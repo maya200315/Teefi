@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teefi/providers/auth_provider.dart';
+import 'package:teefi/views/parent/parent_home_screen.dart';
 import '../admin/admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin(BuildContext context) async {
-    // التحقق من الحقول الفارغة
     if (_phoneController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter phone and password')),
@@ -39,20 +40,33 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
-      );
+      final prefs = await SharedPreferences.getInstance();
+      final roleId = prefs.getInt('role_id') ?? 0;
+      print('ROLE ID: $roleId'); // ✅
+
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => roleId == 1
+                ? const DashboardScreen()
+                : const ParentHomeScreen(),
+          ),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authProvider.errorMessage ?? 'Login failed')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+              Text(authProvider.errorMessage ?? 'Login failed')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // هون بنراقب الـ isLoading من Provider
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
@@ -111,12 +125,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   hintText: 'Enter your phone number',
                   hintStyle: const TextStyle(color: Color(0xFFA0B4D0)),
-                  prefixIcon: const Icon(Icons.phone_android, color: Color(0xFF5B9EF5)),
+                  prefixIcon: const Icon(Icons.phone_android,
+                      color: Color(0xFF5B9EF5)),
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF5B9EF5))),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide:
+                      const BorderSide(color: Color(0xFFD8E8FA))),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide:
+                      const BorderSide(color: Color(0xFFD8E8FA))),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide:
+                      const BorderSide(color: Color(0xFF5B9EF5))),
                 ),
               ),
 
@@ -142,19 +166,32 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   hintText: 'Enter your password',
                   hintStyle: const TextStyle(color: Color(0xFFA0B4D0)),
-                  prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF5B9EF5)),
+                  prefixIcon: const Icon(Icons.lock_outline,
+                      color: Color(0xFF5B9EF5)),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
                       color: const Color(0xFFA0B4D0),
                     ),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD8E8FA))),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF5B9EF5))),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide:
+                      const BorderSide(color: Color(0xFFD8E8FA))),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide:
+                      const BorderSide(color: Color(0xFFD8E8FA))),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide:
+                      const BorderSide(color: Color(0xFF5B9EF5))),
                 ),
               ),
 
@@ -164,7 +201,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : () => _handleLogin(context),
+                  onPressed:
+                  isLoading ? null : () => _handleLogin(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5B9EF5),
                     shape: RoundedRectangleBorder(
@@ -172,7 +210,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   child: isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(
+                      color: Colors.white)
                       : const Text(
                     'Login',
                     style: TextStyle(

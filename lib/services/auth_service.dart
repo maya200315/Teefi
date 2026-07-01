@@ -19,10 +19,10 @@ class AuthService {
         final token = response.data['token'];
         final user = response.data['user'];
 
-        // حفظ التوكن بعد تعديله ليتحول إلى نص بشكل صريح
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token.toString());
         await prefs.setInt('user_id', user['id']);
+        await prefs.setInt('role_id', (user['Roleid'] as int?) ?? 0);
 
         return {'success': true, 'user': user};
       }

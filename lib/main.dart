@@ -8,6 +8,7 @@ import 'providers/parent_details_provider.dart';
 import 'providers/content_provider.dart'; // ✅ أضفناه
 import 'providers/pecs_provider.dart';
 import 'providers/specialists_provider.dart';
+import 'providers/parent_home_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ContentProvider()), // ✅ أضفناه
         ChangeNotifierProvider(create: (_) => PecsProvider()),
         ChangeNotifierProvider(create: (_) => SpecialistsProvider()),
+        ChangeNotifierProvider(create: (_) => ParentHomeProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

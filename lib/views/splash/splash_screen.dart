@@ -21,15 +21,19 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () async {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
+      final roleId = prefs.getInt('role_id') ?? 0; // ✅
 
       if (!context.mounted) return;
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => token != null
-              ? const DashboardScreen()
-              : const LoginScreen(),
+          builder: (_) {
+            if (token == null) return const LoginScreen();
+            return roleId == 1
+                ? const DashboardScreen()
+                : const ParentHomeScreen(); // ✅
+          },
         ),
       );
     });

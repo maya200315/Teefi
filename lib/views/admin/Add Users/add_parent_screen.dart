@@ -279,7 +279,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
                     bool success;
 
                     if (widget.parentData == null) {
-                      // ✅ إضافة مع كل الحقول
+
                       success = await provider.createParent(
                         name: _childNameController.text.trim(),
                         mobileNumber: _phoneController.text.trim(),

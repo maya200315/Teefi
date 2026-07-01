@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:teefi/providers/parent_home_provider.dart';
 import 'package:teefi/views/parent/parent_library_screen.dart';
 
-class ParentHomeScreen extends StatelessWidget {
+class ParentHomeScreen extends StatefulWidget {
   const ParentHomeScreen({super.key});
 
-  // بيانات وهمية لهلق — رح تتربط بالـ API لاحقاً
-  final String childName = 'أحمد';
-  final String childNameEn = 'Ahmed';
-  final int childAge = 7;
-  final String childDiagnosis = 'Moderate ASD';
+  @override
+  State<ParentHomeScreen> createState() => _ParentHomeScreenState();
+}
+
+class _ParentHomeScreenState extends State<ParentHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+        context.read<ParentHomeProvider>().fetchHomeData());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ParentHomeProvider>();
+    final data = provider.homeData;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FF),
-
-      body: Column(
+      body: provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           // ── Header ──────────────────────────────────────
           Container(
@@ -33,14 +45,11 @@ class ParentHomeScreen extends StatelessWidget {
               children: [
                 const Text(
                   'Welcome • أهلاً',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  childName,
+                  data?.childName ?? '',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -57,7 +66,6 @@ class ParentHomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // ── Child Card ───────────────────────────
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -74,7 +82,6 @@ class ParentHomeScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        // Avatar
                         Container(
                           width: 48,
                           height: 48,
@@ -82,10 +89,12 @@ class ParentHomeScreen extends StatelessWidget {
                             color: const Color(0xFFDFF0FF),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
-                              'i',
-                              style: TextStyle(
+                              data?.childName.isNotEmpty == true
+                                  ? data!.childName[0]
+                                  : '?',
+                              style: const TextStyle(
                                 fontSize: 20,
                                 color: Color(0xFF5B9EF5),
                                 fontWeight: FontWeight.bold,
@@ -94,27 +103,21 @@ class ParentHomeScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-
-                        // Info
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    '$childNameEn • $childName',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF2D5F9E),
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                data?.childName ?? '',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2D5F9E),
+                                ),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Age $childAge • $childDiagnosis',
+                                'Age ${data?.childAge ?? ''} • ${data?.autismLevel ?? ''}',
                                 style: const TextStyle(
                                   fontSize: 13,
                                   color: Color(0xFFA0B4D0),
@@ -123,8 +126,6 @@ class ParentHomeScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-
-                        // Active badge
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
@@ -142,7 +143,8 @@ class ParentHomeScreen extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Icon(Icons.check, color: Colors.white, size: 14),
+                              Icon(Icons.check,
+                                  color: Colors.white, size: 14),
                             ],
                           ),
                         ),
@@ -184,9 +186,11 @@ class ParentHomeScreen extends StatelessWidget {
                       _quickAction(
                         icon: Icons.menu_book_outlined,
                         label: 'Library',
-                        onTap: ()  => Navigator.push(
+                        onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const ParentLibraryScreen()),
+                          MaterialPageRoute(
+                              builder: (_) =>
+                              const ParentLibraryScreen()),
                         ),
                       ),
                     ],
@@ -198,7 +202,6 @@ class ParentHomeScreen extends StatelessWidget {
         ],
       ),
 
-      // ── Bottom Navigation ────────────────────────────────
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 4,
         selectedItemColor: const Color(0xFF5B9EF5),
@@ -214,8 +217,7 @@ class ParentHomeScreen extends StatelessWidget {
               icon: Icon(Icons.bar_chart_outlined), label: 'Reports'),
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment_outlined), label: 'Behavior'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         ],
       ),
     );
