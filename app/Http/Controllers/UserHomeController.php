@@ -8,8 +8,9 @@ class UserHomeController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user()->load('parentt');
+        $user = $request->user();
         $parentt = $user->parentt;
+        
 
         if (!$parentt) {
             return response()->json([
