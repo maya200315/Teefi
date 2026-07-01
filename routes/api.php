@@ -3,6 +3,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ManageUsersController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PecsCardCategoryController;
 use App\Http\Controllers\PecsCardChildController;
 use App\Http\Controllers\PecsCardController;
@@ -11,7 +12,7 @@ use App\Http\Controllers\UserHomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class, 'login']);
-
+Route::middleware('auth:sanctum')->post('/logout', [LogoutController::class, 'logout']);
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
   // ── Dashboard ──
