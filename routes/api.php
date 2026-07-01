@@ -62,22 +62,4 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
     Route::get('/articles',      [UserArticleController::class, 'index']);
     Route::get('/articles/{id}', [UserArticleController::class, 'show']);
 
-    // // PECS Cards للطفل
-    // Route::get('/pecs-cards',         [PecsCardChildController::class, 'index']);
-    // Route::get('/pecs-cards/{id}',    [PecsCardChildController::class, 'show']);
-
-    // // Behaviors
-    // Route::get('/behaviors',          [BehaviorController::class, 'index']);
-    // Route::post('/behaviors',         [BehaviorController::class, 'store']);
-
-    // // Reports
-    // Route::get('/weekly-reports',     [WeeklyReportController::class, 'index']);
-    // Route::get('/weekly-reports/{id}',[WeeklyReportController::class, 'show']);
-
-    // // Daily Notes
-    // Route::get('/daily-notes',        [DailyNoteController::class, 'index']);
-    // Route::post('/daily-notes',       [DailyNoteController::class, 'store']);
-
-    // // Recommendations
-    // Route::get('/recommendations',    [RecommendationController::class, 'index']);
 });
