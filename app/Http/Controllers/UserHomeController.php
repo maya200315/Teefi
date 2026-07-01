@@ -1,34 +1,28 @@
 <?php
 
-namespace App\Http\Controllers;  
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\Child;
-use App\Models\Article;
 use Illuminate\Http\Request;
 
 class UserHomeController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user()->load('parentt');
+        $parentt = $user->parentt;
 
-        // جيب أول طفل مرتبط بالأهل
-        $child = Child::where('Userid', $user->id)->first();
-
-        if (!$child) {
+        if (!$parentt) {
             return response()->json([
-                'message' => 'No child found for this user.'
+                'message' => 'No data found.'
             ], 404);
         }
 
-    
         return response()->json([
             'child' => [
-                'id'           => $child->id,
-                'name'         => $child->name,
-                'age'          => $child->age,
-                'autism_level' => $child->autism_level,
+                'id'           => $parentt->id,
+                'name'         => $user->name,
+                'age'          => $parentt->age,
+                'autism_level' => $parentt->autism_level,
             ],
             'quick_actions' => [
                 ['key' => 'behavior', 'label' => 'Behavior'],
