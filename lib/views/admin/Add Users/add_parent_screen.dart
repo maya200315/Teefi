@@ -99,7 +99,15 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
       final level = parentt?['autism_level'] ?? 'mild';
       selectedAutismLevel = level[0].toUpperCase() + level.substring(1);
-      selectedSpecialistId = parentt?['specialist_id'];
+      final specTableId = parentt?['specialist_id'];
+      final specialists = context.read<SpecialistsProvider>().specialists;
+      if (specialists.isNotEmpty && specTableId != null) {
+        final match = specialists.firstWhere(
+              (s) => s.specialistId == specTableId,
+          orElse: () => specialists.first,
+        );
+        selectedSpecialistId = match.id;
+      }
 
       _dataLoaded = true;
     }
@@ -286,7 +294,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
                         password: _passwordController.text,
                         autismLevel: selectedAutismLevel.toLowerCase(),
                         age: int.tryParse(_childAgeController.text.trim()),
-                        specialistId: selectedSpecialistId!,
+                        specialistId: context.read<SpecialistsProvider>().specialists.firstWhere((s) => s.id == selectedSpecialistId).specialistId!,
                       );
                     } else {
                       success = await provider.updateParent(

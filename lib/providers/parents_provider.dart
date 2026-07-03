@@ -39,6 +39,14 @@ class ParentsProvider extends ChangeNotifier {
     int? age,
   }) async {
     try {
+      print("===== CREATE PARENT REQUEST =====");
+      print("name: $name");
+      print("mobile: $mobileNumber");
+      print("password: $password");
+      print("autismLevel: $autismLevel");
+      print("specialistId: $specialistId");
+      print("age: $age");
+      print("================================");
       await _service.createParent(
         name: name,
         mobileNumber: mobileNumber,
@@ -50,11 +58,15 @@ class ParentsProvider extends ChangeNotifier {
       await fetchParents();
       return true;
     } catch (e) {
-      // ✅ اطبعي التفاصيل
-      if (e is DioException && e.response != null) {
-        print('ERROR BODY: ${e.response?.data}');
+      if (e is DioException) {
+        print("===== CREATE PARENT ERROR =====");
+        print("STATUS: ${e.response?.statusCode}");
+        print("BODY: ${e.response?.data}");
+        print("================================");
+      } else {
+        print("UNKNOWN ERROR: $e");
       }
-      print('CREATE PARENT ERROR: $e');
+
       _errorMessage = 'Failed to create parent';
       notifyListeners();
       return false;

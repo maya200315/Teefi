@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../services/article_service.dart';
 import '../models/article_model.dart';
@@ -73,6 +74,15 @@ class ContentProvider extends ChangeNotifier {
       await fetchArticles();
       return true;
     } catch (e) {
+      if (e is DioException) {
+        print("===== CREATE ARTICLE ERROR =====");
+        print("STATUS: ${e.response?.statusCode}");
+        print("BODY: ${e.response?.data}");
+        print("================================");
+      } else {
+        print("ERROR: $e");
+      }
+
       _errorMessage = 'Failed to create article';
       notifyListeners();
       return false;
