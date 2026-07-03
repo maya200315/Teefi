@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:teefi/providers/auth_provider.dart';
 import 'package:teefi/providers/parent_home_provider.dart';
+import 'package:teefi/views/auth/login_screen.dart';
 import 'package:teefi/views/parent/parent_library_screen.dart';
 
 class ParentHomeScreen extends StatefulWidget {
@@ -40,21 +42,42 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                 bottomRight: Radius.circular(28),
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Welcome • أهلاً',
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                // ✅ زر اللوغ أوت
+                IconButton(
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  onPressed: () async {
+                    await context.read<AuthProvider>().logout();
+                    if (context.mounted) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const LoginScreen()),
+                            (route) => false,
+                      );
+                    }
+                  },
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  data?.childName ?? '',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      'Welcome • أهلاً',
+                      style: TextStyle(
+                          color: Colors.white70, fontSize: 13),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      data?.childName ?? '',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -74,7 +97,8 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF5B9EF5).withOpacity(0.08),
+                          color: const Color(0xFF5B9EF5)
+                              .withOpacity(0.08),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -105,7 +129,8 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
                             children: [
                               Text(
                                 data?.childName ?? '',
@@ -217,7 +242,8 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
               icon: Icon(Icons.bar_chart_outlined), label: 'Reports'),
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment_outlined), label: 'Behavior'),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home), label: 'Home'),
         ],
       ),
     );
@@ -239,7 +265,8 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
               color: const Color(0xFFDFF0FF),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(icon, color: const Color(0xFF5B9EF5), size: 28),
+            child:
+            Icon(icon, color: const Color(0xFF5B9EF5), size: 28),
           ),
           const SizedBox(height: 8),
           Text(

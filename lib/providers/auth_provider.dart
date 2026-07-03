@@ -29,4 +29,16 @@ class AuthProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  // ✅ لوغ أوت
+  Future<void> logout() async {
+    _isLoading = true;
+    notifyListeners();
+
+    await AuthService().logout();
+
+    _user = null;
+    _isLoading = false;
+    notifyListeners();
+  }
 }

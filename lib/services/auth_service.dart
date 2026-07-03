@@ -22,7 +22,7 @@ class AuthService {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token.toString());
         await prefs.setInt('user_id', user['id']);
-        await prefs.setInt('role_id', (user['Roleid'] as int?) ?? 0);
+        await prefs.setInt('role_id', (user['Roleid'] as int?) ?? 0); // ✅ بحرف كبير R
 
         return {'success': true, 'user': user};
       }
@@ -35,5 +35,22 @@ class AuthService {
       }
       return {'success': false, 'message': 'Connection error'};
     }
+  }
+
+  // ✅ لوغ أوت
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    try {
+      await _dio.post(
+        '$_baseUrl/logout',
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+    } catch (e) {
+      // حتى لو فشل الـ API نمسح التوكن
+    }
+
+    await prefs.clear();
   }
 }

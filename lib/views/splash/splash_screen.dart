@@ -23,6 +23,9 @@ class _SplashScreenState extends State<SplashScreen> {
       final token = prefs.getString('token');
       final roleId = prefs.getInt('role_id') ?? 0; // ✅
 
+      print("TOKEN: $token");
+      print("ROLE ID: $roleId");
+
       if (!context.mounted) return;
 
       Navigator.pushReplacement(

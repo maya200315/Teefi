@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:teefi/providers/auth_provider.dart';
 import 'package:teefi/providers/dashboard_provider.dart';
 import 'package:teefi/views/admin/manage_users_screen.dart';
+import 'package:teefi/views/auth/login_screen.dart';
 import 'manage_content_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -42,6 +44,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: const Color(0xFF5B9EF5),
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          // ✅ زر اللوغ أوت
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
+                );
+              }
+            },
+          ),
+        ],
       ),
 
       body: SingleChildScrollView(
