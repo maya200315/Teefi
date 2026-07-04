@@ -21,7 +21,7 @@ class SpecialistService {
       "/admin/users/specialists",
       options: await _authOptions(),
     );
-    print('SPECIALISTS: ${response.data}'); // ✅ أضيفي هاد
+    print('SPECIALISTS: ${response.data}'); //
     return response.data['data'];
   }
 
@@ -70,7 +70,7 @@ class SpecialistService {
       body["password"] = password;
     }
     await _dio.put(
-      "/admin/users/specialists/$id", //✅ تأكدي من هاد المسارك
+      "/admin/users/specialists/$id", //
       data: body,
       options: await _authOptions(),
     );

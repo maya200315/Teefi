@@ -17,7 +17,7 @@ class ParentDetailsService {
       "/admin/users/parents/$id",
       options: Options(headers: {"Authorization": "Bearer $token"}),
     );
-    print('PARENT DATA: ${response.data}'); // ✅ أضيفي هاد
+    print('PARENT DATA: ${response.data}'); //
     return response.data['data'];
   }
 }

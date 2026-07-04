@@ -33,7 +33,7 @@ class ContentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ جلب مقالات الأهل
+  //  جلب مقالات الأهل
   Future<void> fetchUserArticles() async {
     _isLoading = true;
     _errorMessage = null;
@@ -78,7 +78,6 @@ class ContentProvider extends ChangeNotifier {
         print("===== CREATE ARTICLE ERROR =====");
         print("STATUS: ${e.response?.statusCode}");
         print("BODY: ${e.response?.data}");
-        print("================================");
       } else {
         print("ERROR: $e");
       }

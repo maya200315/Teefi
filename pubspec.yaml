@@ -26,7 +26,7 @@ flutter_launcher_icons:
   android: true
   ios: false
   image_path: "assets/images/icon.png"
-  # هدول السطرين لحل مشكلة الدائرة البيضاء والصغر بالأندرويد
+
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/images/icon.png"
 
@@ -36,4 +36,4 @@ flutter:
   assets:
     - assets/images/splash.png
     - assets/images/ggoo.png
-    - assets/images/icon.png # تم تصحيح التعليق هنا ليعمل الكود بدون أخطاء
+    - assets/images/icon.png

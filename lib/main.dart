@@ -5,7 +5,7 @@ import 'providers/auth_provider.dart';
 import 'providers/parents_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/parent_details_provider.dart';
-import 'providers/content_provider.dart'; // ✅ أضفناه
+import 'providers/content_provider.dart';
 import 'providers/pecs_provider.dart';
 import 'providers/specialists_provider.dart';
 import 'providers/parent_home_provider.dart';
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ParentsProvider()),
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => ParentDetailsProvider()),
-        ChangeNotifierProvider(create: (_) => ContentProvider()), // ✅ أضفناه
+        ChangeNotifierProvider(create: (_) => ContentProvider()),
         ChangeNotifierProvider(create: (_) => PecsProvider()),
         ChangeNotifierProvider(create: (_) => SpecialistsProvider()),
         ChangeNotifierProvider(create: (_) => ParentHomeProvider()),

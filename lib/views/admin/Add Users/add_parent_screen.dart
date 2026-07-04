@@ -20,8 +20,8 @@ class _AddParentScreenState extends State<AddParentScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  String selectedAutismLevel = 'Mild'; // ✅ القيمة الافتراضية
-  int? selectedSpecialistId; // ✅ ربط حقيقي بالـ API
+  String selectedAutismLevel = 'Mild'; //
+  int? selectedSpecialistId; //
   bool obscurePassword = true;
   bool _dataLoaded = false;
 
@@ -38,7 +38,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
         context.read<ParentDetailsProvider>().fetchParentById(
             int.tryParse(id.toString()) ?? 0);
       } else {
-        // ✅ نظفي البيانات القديمة لما تكوني بوضع إضافة
+
         context.read<ParentDetailsProvider>().clear();
       }
     });
@@ -88,7 +88,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
   Widget build(BuildContext context) {
     final detailsProvider = context.watch<ParentDetailsProvider>();
 
-    // ✅ التعديل الجديد: استخراج البيانات وتعبئة حقول الـ Age والـ Autism Level والـ Specialist بالكامل عند التعديل
+    //  التعديل الجديد: استخراج البيانات وتعبئة حقول الـ Age والـ Autism Level والـ Specialist بالكامل عند التعديل
     if (detailsProvider.parentData != null && !_dataLoaded) {
       final data = detailsProvider.parentData!;
       final parentt = data['parentt'] as Map<String, dynamic>?;
@@ -241,7 +241,7 @@ class _AddParentScreenState extends State<AddParentScreen> {
 
               const SizedBox(height: 20),
 
-              // ✅ Dropdown الأخصائيين من API
+              // Dropdown الأخصائيين من API
               const Text('Assign Specialist'),
               const SizedBox(height: 8),
               Consumer<SpecialistsProvider>(

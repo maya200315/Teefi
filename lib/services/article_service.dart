@@ -11,6 +11,7 @@ class ArticleService {
 
   Future<Options> _authOptions() async {
     final prefs = await SharedPreferences.getInstance();
+    //قراءة التوكن
     final token = prefs.getString('token');
     return Options(headers: {"Authorization": "Bearer $token"});
   }
@@ -24,7 +25,7 @@ class ArticleService {
     return response.data['data'];
   }
 
-  // ✅ جلب مقالات الأهل
+  //  جلب مقالات الأهل
   Future<List<dynamic>> getUserArticles() async {
     final response = await _dio.get(
       "/user/articles",

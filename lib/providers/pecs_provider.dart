@@ -5,21 +5,21 @@ import '../models/pecs_category_model.dart';
 class PecsProvider extends ChangeNotifier {
   final PecsService _pecsService = PecsService();
 
-  // ─── State ────────────────────────────────────────────────
+  //State
   List<PecsCategoryModel> _categories = [];
   PecsCategoryModel? _selectedCategory;
   PecsCardModel? _selectedCard;
   bool _isLoading = false;
   String? _errorMessage;
 
-  // ─── Getters ──────────────────────────────────────────────
+  // Getters
   List<PecsCategoryModel> get categories => _categories;
   PecsCategoryModel? get selectedCategory => _selectedCategory;
   PecsCardModel? get selectedCard => _selectedCard;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // ─── Categories ───────────────────────────────────────────
+  //Categories
 
   Future<void> fetchCategories() async {
     _isLoading = true;
@@ -86,7 +86,7 @@ class PecsProvider extends ChangeNotifier {
     }
   }
 
-  // ─── Cards ────────────────────────────────────────────────
+  // ─── Cards
 
   Future<bool> fetchCard(int id) async {
     try {

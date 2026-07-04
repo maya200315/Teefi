@@ -12,7 +12,7 @@ class ArticleModel {
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
-    // ✅ تحويل التاريخ
+    //  تحويل التاريخ
     String rawDate = json['datetime'] ?? '';
     String formattedDate = '';
     try {

@@ -15,7 +15,7 @@ class PecsService {
     return Options(headers: {"Authorization": "Bearer $token"});
   }
 
-  // ─── Categories ───────────────────────────────────────────
+  //  Categories
 
   // جلب كل الكاتيجوريز
   Future<List<dynamic>> getCategories() async {
@@ -61,7 +61,7 @@ class PecsService {
     );
   }
 
-  // ─── Cards ────────────────────────────────────────────────
+  // ─── Cards
 
   // جلب كارد واحد
   Future<Map<String, dynamic>> getCard(int id) async {
@@ -100,8 +100,8 @@ class PecsService {
   }) async {
     final map = <String, dynamic>{
       "title": title,
-      "PECS_card_categoryid": categoryId, // ✅ تأكدي من الاسم الصح
-      "_method": "PUT",                     // ✅ method spoofing
+      "PECS_card_categoryid": categoryId, //
+      "_method": "PUT",                     //
     };
 
     if (imagePath != null) {
