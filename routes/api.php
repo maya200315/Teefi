@@ -7,6 +7,7 @@ use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PecsCardCategoryController;
 use App\Http\Controllers\PecsCardChildController;
 use App\Http\Controllers\PecsCardController;
+use App\Http\Controllers\PecsCardParentController;
 use App\Http\Controllers\UserArticleController;
 use App\Http\Controllers\UserHomeController;
 use Illuminate\Support\Facades\Route;
@@ -63,4 +64,6 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
     Route::get('/articles',      [UserArticleController::class, 'index']);
     Route::get('/articles/{id}', [UserArticleController::class, 'show']);
 
-});
+// ---- أهل ----
+Route::get('/pecs-categories', [PecsCardParentController::class, 'indexForParents']);
+Route::get('/pecs-categories/{id}/cards', [PecsCardParentController::class, 'cardsForParents']);});
