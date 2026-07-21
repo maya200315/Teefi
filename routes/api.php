@@ -1,6 +1,9 @@
 <?php
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\BehaviorController;
+use App\Http\Controllers\BehaviorTypeController;
+use App\Http\Controllers\ChildProfileController;
 use App\Http\Controllers\ManageUsersController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
@@ -65,5 +68,21 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
     Route::get('/articles/{id}', [UserArticleController::class, 'show']);
 
 // ---- أهل ----
-Route::get('/pecs-categories', [PecsCardParentController::class, 'indexForParents']);
-Route::get('/pecs-categories/{id}/cards', [PecsCardParentController::class, 'cardsForParents']);});
+   Route::get('/pecs-categories', [PecsCardParentController::class, 'indexForParents']);  
+   Route::get('/pecs-categories/{id}/cards', [PecsCardParentController::class, 'cardsForParents']);
+
+  // الأنواع الأربعة الثابتة (نوبة غضب / تفاعل إيجابي / سلوك تكراري / استجابة)
+    // تستخدميه لتعبئة البطاقات الأربعة بالشاشة
+    Route::get('/behavior-types', [BehaviorTypeController::class, 'index']);
+ 
+    // حفظ تسجيل سلوك جديد (لما اليوزر يختار بطاقة ويكتب ملاحظة ويضغط حفظ)
+    Route::post('/behaviors', [BehaviorController::class, 'store']);
+ 
+    // كل سجلات السلوك لطفل معيّن (للتقارير)
+    Route::get('/children/{childId}/behaviors', [BehaviorController::class, 'reportByChild']);
+    
+    // بيانات الطفل (الاسم، العمر، مستوى التوحد) - لهيدر شاشة Record Behavior
+Route::get('/children', [ChildProfileController::class, 'index']);
+Route::get('/children/{childId}/profile', [ChildProfileController::class, 'show']); 
+
+    });
