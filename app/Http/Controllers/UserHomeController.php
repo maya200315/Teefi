@@ -10,7 +10,7 @@ class UserHomeController extends Controller
     {
         $user = $request->user();
         $parentt = $user->parentt;
-        
+
 
         if (!$parentt) {
             return response()->json([
@@ -20,8 +20,8 @@ class UserHomeController extends Controller
 
         return response()->json([
             'child' => [
-                'id'           => $parentt->id,
-                'name'         => $user->name,
+                'id'    => $parentt->id,
+                'name' => $parentt->name,
                 'age'          => $parentt->age,
                 'autism_level' => $parentt->autism_level,
             ],
