@@ -4,6 +4,7 @@ import 'package:teefi/providers/auth_provider.dart';
 import 'package:teefi/providers/parent_home_provider.dart';
 import 'package:teefi/views/auth/login_screen.dart';
 import 'package:teefi/views/parent/parent_library_screen.dart';
+import 'package:teefi/views/parent/parent_pecs_screen.dart';
 
 class ParentHomeScreen extends StatefulWidget {
   const ParentHomeScreen({super.key});
@@ -206,7 +207,12 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                       _quickAction(
                         icon: Icons.style_outlined,
                         label: 'PECS',
-                        onTap: () {},
+                        onTap: ()  => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) =>
+                              const ParentPecsScreen()),
+                        ),
                       ),
                       _quickAction(
                         icon: Icons.menu_book_outlined,
