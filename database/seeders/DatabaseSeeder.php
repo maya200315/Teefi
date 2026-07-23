@@ -9,6 +9,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            BehaviorTypeSeeder::class,
             RoleSeeder::class,
             TestUserSeeder::class,
             ChildSeeder::class,
@@ -16,12 +17,12 @@ class DatabaseSeeder extends Seeder
             PecsCardCategorySeeder::class,
             PecsCardSeeder::class,
             PecsCardChildSeeder::class,
-            BehaviorTypeSeeder::class,
             BehaviorSeeder::class,
             DailyNoteSeeder::class,
             WeeklyReportSeeder::class,
             RecommendationSeeder::class,
             SpecialistSeeder::class,
+            ParentSeeder::class,
         ]);
     }
 }
