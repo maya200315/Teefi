@@ -87,7 +87,7 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
   // بيانات الطفل (الاسم، العمر، مستوى التوحد) - لهيدر شاشة Record Behavior
   Route::get('/children', [ChildProfileController::class, 'index']);
   Route::get('/children/{childId}/profile', [ChildProfileController::class, 'show']);
-  
+
   Route::get('children/{childId}/reports/weekly', [ReportController::class, 'weekly']);
   Route::get('children/{childId}/reports/monthly', [ReportController::class, 'monthly']);
   Route::get('children/{childId}/reports/chart', [ReportController::class, 'chart']);

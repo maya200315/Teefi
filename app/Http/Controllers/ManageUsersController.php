@@ -114,8 +114,14 @@ class ManageUsersController extends Controller
                     'specialist_id' => $validated['specialist_id'],
                     'age' => $validated['age'],
                 ]);
-            }
 
+                \App\Models\Child::create([
+                    'name'         => $validated['name'],
+                    'age'          => $validated['age'],
+                    'autism_level' => $validated['autism_level'],
+                    'Userid'       => $user->id,
+                ]);
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
