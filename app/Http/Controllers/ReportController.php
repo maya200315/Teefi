@@ -35,24 +35,56 @@ class ReportController extends Controller
     }
 
     // GET /api/children/{childId}/reports/chart?period=weekly|monthly
-    // بيرجع بيانات الأعمدة اليومية جاهزة للرسم البياني بالواجهة
-    public function chart(Request $request, int $childId)
-    {
-        $period = $request->query('period', 'weekly');
-        $end    = now()->endOfDay();
-        $start  = $period === 'monthly'
-            ? now()->startOfMonth()
-            : now()->startOfWeek();
+// بيرجع 4 أعمدة ثابتة (نوبة غضب / تفاعل إيجابي / سلوك تكراري / استجابة)
+// تمثل العدد والنسبة الإجمالية لكل سلوك خلال الفترة المختارة بالكامل (مش تفصيل يومي)
+public function chart(Request $request, int $childId)
+{
+    $period = $request->query('period', 'weekly');
+    $referenceDate = $request->query('date') ? Carbon::parse($request->query('date')) : now();
 
-        $days = [];
-        for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
-            $dayStats = $this->stats->getStats($childId, $day->copy()->startOfDay(), $day->copy()->endOfDay());
-            $days[] = [
-                'date'        => $day->toDateString(),
-                'percentages' => $dayStats['percentages'],
-            ];
-        }
-
-        return response()->json(['status' => true, 'data' => $days]);
+    if ($period === 'monthly') {
+        $start = $referenceDate->copy()->startOfMonth();
+        $end   = $referenceDate->copy()->endOfMonth();
+    } else {
+        $start = $referenceDate->copy()->startOfWeek();
+        $end   = $referenceDate->copy()->endOfWeek();
     }
+
+    $stats = $this->stats->getStats($childId, $start, $end);
+
+    $labels = [
+        'anger'      => 'نوبة غضب',
+        'positive'   => 'تفاعل إيجابي',
+        'repetitive' => 'سلوك تكراري',
+        'response'   => 'استجابة',
+    ];
+
+    $typeMap = [
+        'anger'      => BehaviorStatsService::TYPE_ANGER,
+        'positive'   => BehaviorStatsService::TYPE_POSITIVE,
+        'repetitive' => BehaviorStatsService::TYPE_REPETITIVE,
+        'response'   => BehaviorStatsService::TYPE_RESPONSE,
+    ];
+
+    $columns = [];
+    foreach ($labels as $key => $label) {
+        $columns[] = [
+            'key'        => $key,
+            'label'      => $label,
+            'count'      => $stats['counts'][$typeMap[$key]] ?? 0,
+            'percentage' => round($stats['percentages'][$key], 1),
+        ];
+    }
+
+    return response()->json([
+        'status' => true,
+        'data'   => [
+            'period'  => $period,
+            'start'   => $start->toDateString(),
+            'end'     => $end->toDateString(),
+            'total'   => $stats['total'],
+            'columns' => $columns,
+        ],
+    ]);
+}
 }
