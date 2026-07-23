@@ -12,13 +12,14 @@ return new class extends Migration
             $table->id();
             $table->date('week_start');
             $table->date('week_end');
-            $table->integer('total_behaviors');
-            $table->integer('positive_count');
-            $table->integer('negative_count');
-            $table->string('summary');
-            $table->foreignId('Childid')->constrained('children')->onDelete('cascade');
-            $table->foreignId('Userid')->constrained('users')->onDelete('cascade');
+            $table->integer('total_behaviors')->default(0);
+            $table->integer('positive_count')->default(0);
+            $table->integer('negative_count')->default(0);
+            $table->string('summary')->nullable();
+            $table->foreignId('Childid')->constrained('children')->cascadeOnDelete();
+            $table->foreignId('Userid')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
+            $table->unique(['Childid', 'week_start', 'week_end']);
         });
     }
 
