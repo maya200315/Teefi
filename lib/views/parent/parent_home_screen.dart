@@ -5,6 +5,7 @@ import 'package:teefi/providers/parent_home_provider.dart';
 import 'package:teefi/views/auth/login_screen.dart';
 import 'package:teefi/views/parent/parent_library_screen.dart';
 import 'package:teefi/views/parent/parent_pecs_screen.dart';
+import 'package:teefi/views/parent/record_behavior_screen.dart';
 
 class ParentHomeScreen extends StatefulWidget {
   const ParentHomeScreen({super.key});
@@ -197,12 +198,18 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                       _quickAction(
                         icon: Icons.assignment_outlined,
                         label: 'Behavior',
-                        onTap: () {},
+                        onTap: ()  => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RecordBehaviorScreen()),
+                  ),
                       ),
                       _quickAction(
                         icon: Icons.bar_chart_outlined,
                         label: 'Reports',
-                        onTap: () {},
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const RecordBehaviorScreen()),
+                        ),
                       ),
                       _quickAction(
                         icon: Icons.style_outlined,
