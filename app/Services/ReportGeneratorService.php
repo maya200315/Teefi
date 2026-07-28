@@ -43,9 +43,7 @@ class ReportGeneratorService
         );
     }
 
-    /**
-     * نفس المنطق تماماً بس للتقرير الشهري.
-     */
+     // نفس المنطق تماماً بس للتقرير الشهري.
     public function generateMonthly(int $childId, ?Carbon $referenceDate = null): MonthlyReport
     {
         $referenceDate ??= now();

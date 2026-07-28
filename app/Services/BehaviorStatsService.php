@@ -16,8 +16,8 @@ class BehaviorStatsService
     /**
      * بيرجع مصفوفة فيها العدد والنسبة المئوية لكل نوع سلوك خلال فترة معينة.
      * هاي الدالة بتنستخدم لكل من: الرسم البياني، وتوليد الملخص، وأي تقرير مستقبلي.
-     *
-     * @return array{
+    
+    * @return array{
      *   total: int,
      *   counts: array<int,int>,
      *   percentages: array{anger: float, positive: float, repetitive: float, response: float}
