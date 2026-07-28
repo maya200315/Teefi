@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamps();
             $table->unique(['Childid', 'week_start', 'week_end']);
         });
-    }
+    } 
 
     public function down(): void
     {
