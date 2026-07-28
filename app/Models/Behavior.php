@@ -24,6 +24,7 @@ class Behavior extends Model
         'date' => 'date',
     ];
 
+    
     public function behaviorType(): BelongsTo
     {
         return $this->belongsTo(BehaviorType::class, 'Behavior_typeid');

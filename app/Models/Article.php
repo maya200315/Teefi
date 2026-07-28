@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Article extends Model
 {
+    
     protected $table = 'articles';
 
     protected $fillable = ['title', 'content', 'datetime', 'Userid'];

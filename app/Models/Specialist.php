@@ -16,8 +16,8 @@ class Specialist extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function parents()
+    public function parentts()
     {
-        return $this->hasMany(Parent::class);
+        return $this->hasMany(Parentt::class, 'specialist_id');
     }
 }

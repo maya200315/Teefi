@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PecsCardChild extends Model
 {
-    
     protected $table = 'pecs_card_child'; // ← هاد الإضافة المهمة
 
     protected $fillable = ['PECS_cardid', 'Childid'];

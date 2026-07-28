@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WeeklyReport extends Model
 {
+    
     protected $table = 'weekly_reports';
 
     protected $fillable = [

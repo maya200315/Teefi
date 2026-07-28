@@ -67,8 +67,4 @@ class User extends Authenticatable
     {
         return $this->hasOne(Parentt::class, 'user_id', 'id');
     }
-    // public function parentt()
-    // {
-    //     return $this->hasOne(Parentt::class);
-    // }
 }
