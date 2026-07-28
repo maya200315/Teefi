@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teefi/providers/auth_provider.dart';
 import 'package:teefi/views/parent/parent_home_screen.dart';
 import '../admin/admin_dashboard_screen.dart';
+import '../specialist/specialist_children_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,13 +46,18 @@ class _LoginScreenState extends State<LoginScreen> {
       print('ROLE ID: $roleId'); // ✅
 
       if (context.mounted) {
+        Widget destination;
+        if (roleId == 1) {
+          destination = const DashboardScreen();
+        } else if (roleId == 2) {
+          destination = const SpecialistChildrenScreen();
+        } else {
+          destination = const ParentHomeScreen();
+        }
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => roleId == 1
-                ? const DashboardScreen()
-                : const ParentHomeScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => destination),
         );
       }
     } else {

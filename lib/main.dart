@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:teefi/providers/SpecialistChildrenProvider.dart';
 import 'package:teefi/providers/behavior_provider.dart';
 import 'package:teefi/providers/parent_pecs_provider.dart';
 import 'package:teefi/providers/report_provider.dart';
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ParentPecsProvider()),
         ChangeNotifierProvider(create: (_) => BehaviorProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider()),
+        ChangeNotifierProvider(create: (_) => SpecialistChildrenProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
