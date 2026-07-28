@@ -14,6 +14,7 @@ use App\Http\Controllers\PecsCardController;
 use App\Http\Controllers\PecsCardParentController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SpecialistController;
 use App\Http\Controllers\UserArticleController;
 use App\Http\Controllers\UserHomeController;
 use Illuminate\Support\Facades\Route;
@@ -97,3 +98,9 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
   Route::put('recommendations/{id}', [RecommendationController::class, 'update']);
   Route::delete('recommendations/{id}', [RecommendationController::class, 'destroy']);
 });
+
+  Route::middleware(['auth:sanctum'])->prefix('specialist')->group(function () {
+        Route::get('MyChildren', [SpecialistController::class, 'myChildren']);
+
+});
+
