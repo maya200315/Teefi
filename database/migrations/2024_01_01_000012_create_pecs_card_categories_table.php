@@ -15,7 +15,7 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-
+ 
     public function down(): void
     {
         Schema::dropIfExists('pecs_card_categories');

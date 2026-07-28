@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('Childid')->constrained('children')->onDelete('cascade');
             $table->timestamps();
         });
-    }
+    } 
 
     public function down(): void
     {

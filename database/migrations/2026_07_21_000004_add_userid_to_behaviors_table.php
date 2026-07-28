@@ -9,7 +9,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('behaviors', function (Blueprint $table) {
-            // مين سجّل هالسلوك (أهل أو أخصائي) - كلاهما موجود بجدول users
             $table->foreignId('Userid')
                 ->nullable()
                 ->after('Childid')
