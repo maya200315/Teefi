@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MonthlyReport extends Model
 {
+    
     protected $table = 'monthly_reports';
 
     protected $fillable = [

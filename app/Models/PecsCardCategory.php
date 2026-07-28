@@ -16,6 +16,7 @@ class PecsCardCategory extends Model
         return $this->hasMany(PecsCard::class, 'PECS_card_categoryid');
     }
 
+    
     public function cards()
     {
         return $this->hasMany(PecsCard::class, 'PECS_card_categoryid');

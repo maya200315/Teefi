@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Recommendation extends Model
 {
+    
     protected $table = 'recommendations';
 
     protected $fillable = ['text', 'date', 'Userid', 'Childid'];
