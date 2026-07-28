@@ -14,7 +14,7 @@ class SpecialistController extends Controller
      */
     public function myChildren(Request $request)
     {
-        $user = Auth::user(); // الأخصائي الحالي (Sanctum)
+        $user = Auth::user(); 
 
         $specialist = Specialist::where('user_id', $user->id)->first();
 
@@ -24,12 +24,10 @@ class SpecialistController extends Controller
             ], 404);
         }
 
-        // نجيب الأهالي التابعين لهذا الأخصائي مع بيانات المستخدم (الأب) وأطفاله
         $parents = $specialist->parentts()
-            ->with(['user.children']) // user = حساب الأب، children = أطفاله
+            ->with(['user.children']) 
             ->get();
 
-        // نبني قائمة موحدة بكل الأطفال (لأن كل أب ممكن يكون عنده أكثر من طفل)
         $children = $parents->flatMap(function ($parentt) {
             return $parentt->user->children->map(function ($child) use ($parentt) {
                 return [

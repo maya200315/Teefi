@@ -34,4 +34,4 @@ class UserArticleController extends Controller
             'data'   => $article
         ]);
     }
-}
+} 

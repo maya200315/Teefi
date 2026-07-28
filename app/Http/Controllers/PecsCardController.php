@@ -11,30 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PecsCardController extends Controller
 {
-
-    // public function index(Request $request)
-    // {
-    //     $query = PecsCard::with('category');
-
-    //     if ($request->has('category_id')) {
-    //         $query->where('PECS_card_categoryid', $request->category_id);
-    //     }
-
-    //     $cards = $query->orderBy('created_at', 'desc')->get();
-
-    //     $cards->transform(function ($card) {
-    //         $card->image_url = $card->image
-    //             ? asset('storage/' . $card->image)
-    //             : null;
-    //         return $card;
-    //     });
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'data'   => $cards
-    //     ], 200);
-    // }
-
     public function show(int $id)
     {
         $card = PecsCard::with('category')->find($id);

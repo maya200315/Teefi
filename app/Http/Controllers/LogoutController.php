@@ -13,7 +13,6 @@ public function logout(Request $request)
     if (!$user) {
         return response()->json(['message' => 'Unauthenticated'], 401);
     }
-
     $user->currentAccessToken()->delete();
 
     return response()->json(['message' => 'Logged out successfully'], 200);

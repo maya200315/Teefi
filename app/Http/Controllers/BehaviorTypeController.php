@@ -10,6 +10,6 @@ class BehaviorTypeController extends Controller
     public function index()
     {
         return BehaviorType::select('id', 'name')->get();
- 
+
     }
 }

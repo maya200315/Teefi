@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class PecsCardParentController extends Controller
 {
-    
+
 
     /**
      * كل الكاتيغوريز - لما يضغط الأهل عزر Pecs بالهوم
@@ -66,5 +66,5 @@ class PecsCardParentController extends Controller
             'data'     => $cards
         ], 200);
     }
-
 }
+
