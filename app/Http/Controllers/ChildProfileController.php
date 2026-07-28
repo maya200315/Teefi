@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class ChildProfileController extends Controller
 {
-    // قائمة كل أطفال الأهل المسجّل دخوله (تستخدميها للسويتشر ↓ إذا عندهن أكتر من طفل)
+    // قائمة كل أطفال الأهل المسجّل دخوله
     public function index(Request $request)
     {
         $children = $request->user()->children()->select('id', 'name')->get();
@@ -14,10 +14,10 @@ class ChildProfileController extends Controller
         return response()->json($children);
     }
 
-    // بيانات طفل معيّن (اسم، عمر، مستوى توحد) - لهيدر شاشة Record Behavior
+    // بيانات طفل معين (اسم، عمر، مستوى توحد) 
     public function show(Request $request, int $childId)
     {
-        // ->children() بتتأكد إنه الطفل فعلاً تابع لهالأهل، ما بتسمح لأهل تاني يشوف طفل مش طفله
+        //  بتتأكد إنه الطفل فعلاً تابع لهالأهل، ما بتسمح لأهل تاني يشوف طفل مش طفله
         $child = $request->user()->children()->where('id', $childId)->first();
 
         if (!$child) {

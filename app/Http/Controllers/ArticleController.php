@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
 {
-    // GET /api/articles
     public function index()
     {
         $articles = Article::with('user')
@@ -63,7 +62,6 @@ class ArticleController extends Controller
         ], 201);
     }
     
-    // PUT /api/articles/{id}
     public function update(Request $request, int $id)
     {
         $article = Article::find($id);
@@ -97,7 +95,6 @@ class ArticleController extends Controller
         ], 200);
     }
 
-    // DELETE /api/articles/{id}
     public function destroy(int $id)
     {
         $article = Article::find($id);

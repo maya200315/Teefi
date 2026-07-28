@@ -14,7 +14,6 @@ class ReportController extends Controller
         private BehaviorStatsService $stats,
     ) {}
 
-    // GET /api/children/{childId}/reports/weekly
     public function weekly(Request $request, int $childId)
     {
         $date = $request->query('date') ? Carbon::parse($request->query('date')) : now();
@@ -24,7 +23,6 @@ class ReportController extends Controller
         return response()->json(['status' => true, 'data' => $report]);
     }
 
-    // GET /api/children/{childId}/reports/monthly
     public function monthly(Request $request, int $childId)
     {
         $date = $request->query('date') ? Carbon::parse($request->query('date')) : now();
@@ -34,7 +32,6 @@ class ReportController extends Controller
         return response()->json(['status' => true, 'data' => $report]);
     }
 
-    // GET /api/children/{childId}/reports/chart?period=weekly|monthly
 // بيرجع 4 أعمدة ثابتة (نوبة غضب / تفاعل إيجابي / سلوك تكراري / استجابة)
 // تمثل العدد والنسبة الإجمالية لكل سلوك خلال الفترة المختارة بالكامل (مش تفصيل يومي)
 public function chart(Request $request, int $childId)

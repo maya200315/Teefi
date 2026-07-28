@@ -80,6 +80,7 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
   Route::get('/behavior-types', [BehaviorTypeController::class, 'index']);
 
   // حفظ تسجيل سلوك جديد (لما اليوزر يختار بطاقة ويكتب ملاحظة ويضغط حفظ)
+  //اليوزر كاتب هون ملاحظة بدنا ياها ترجع على شاشة التقرير تبع الاخصائي
   Route::post('/behaviors', [BehaviorController::class, 'store']);
 
   // كل سجلات السلوك لطفل معيّن (للتقارير)
@@ -99,8 +100,8 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
   Route::delete('recommendations/{id}', [RecommendationController::class, 'destroy']);
 });
 
-  Route::middleware(['auth:sanctum'])->prefix('specialist')->group(function () {
-        Route::get('MyChildren', [SpecialistController::class, 'myChildren']);
-
+Route::middleware(['auth:sanctum'])->prefix('specialist')->group(function () {
+  Route::get('MyChildren', [SpecialistController::class, 'myChildren']);
+  Route::post('children/{childId}/recommendations', [RecommendationController::class, 'store']);
+  
 });
-

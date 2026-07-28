@@ -26,7 +26,7 @@ class BehaviorController extends Controller
         return response()->json($behavior->load('behaviorType', 'user'), 201);
     }
 
-    // تقرير: سجلات طفل معيّن مجمّعة حسب نوع السلوك
+    // تقريرسجلات طفل معيّن مجمّعة حسب نوع السلوك
     public function reportByChild(int $childId)
     {
         return Behavior::where('Childid', $childId)

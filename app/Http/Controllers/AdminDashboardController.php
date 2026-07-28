@@ -12,7 +12,6 @@ class AdminDashboardController extends Controller
 {
     /**
      * GET /api/admin/dashboard
-     * Returns live counts for the admin dashboard cards.
      */
     public function index(): JsonResponse
     {

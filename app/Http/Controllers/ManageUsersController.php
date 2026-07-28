@@ -223,4 +223,5 @@ class ManageUsersController extends Controller
 
         return response()->json(['success' => true, 'message' => 'User deleted successfully.']);
     }
+    
 }
