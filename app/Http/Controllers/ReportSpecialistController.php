@@ -8,7 +8,7 @@ use App\Services\ReportGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class ReportController extends Controller
+class ReportSpecialistController extends Controller
 {
 use AuthorizesChildAccess;
 

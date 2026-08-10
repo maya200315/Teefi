@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MonthlyReport extends Model
 {
-    
+
     protected $table = 'monthly_reports';
 
     protected $fillable = [
@@ -19,11 +19,17 @@ class MonthlyReport extends Model
         'summary',
         'Childid',
         'Userid',
+        'parent_note',
+        'specialist_recommendation',
+        'recommendation_by',
+        'recommendation_at',
     ];
 
     protected $casts = [
         'month_start' => 'date',
         'month_end'   => 'date',
+        'recommendation_at'  => 'datetime',
+
     ];
 
     public function child(): BelongsTo
@@ -34,5 +40,15 @@ class MonthlyReport extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'Userid');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'Userid');
+    }
+
+    public function recommendedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'recommendation_by');
     }
 }

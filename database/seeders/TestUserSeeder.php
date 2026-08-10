@@ -47,5 +47,14 @@ class TestUserSeeder extends Seeder
         $user->password = Hash::make('111111');
         $user->Roleid = 3;
         $user->save();
+
+        //superadmin 
+        
+        $user = new User();
+        $user->name = 'boss MH';
+        $user->mobile_number = '0968879073';
+        $user->password = Hash::make('23102003');
+        $user->Roleid = 4;
+        $user->save();
     }
 }

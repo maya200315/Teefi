@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\SpecialistParentController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BehaviorController;
 use App\Http\Controllers\BehaviorTypeController;
+use App\Http\Controllers\ChildController;
 use App\Http\Controllers\ChildProfileController;
 use App\Http\Controllers\ManageUsersController;
 use App\Http\Controllers\LoginController;
@@ -13,7 +15,8 @@ use App\Http\Controllers\PecsCardChildController;
 use App\Http\Controllers\PecsCardController;
 use App\Http\Controllers\PecsCardParentController;
 use App\Http\Controllers\RecommendationController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportSpecialistController;
+use App\Http\Controllers\ReportParentController;
 use App\Http\Controllers\SpecialistController;
 use App\Http\Controllers\UserArticleController;
 use App\Http\Controllers\UserHomeController;
@@ -21,11 +24,27 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [LogoutController::class, 'logout']);
-Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
+//superadmin
+  //مسارات الأدمن — ربط/فك ربط أخصائي بأهل 
+  Route::middleware(['auth:sanctum', 'superadmin'])
+    ->prefix('superadmin')
+    ->group(function () {
+        Route::get('/specialists', [SpecialistParentController::class, 'specialists']);
+        Route::get('/parents', [SpecialistParentController::class, 'parents']);
+        Route::get('/specialist-parent-links', [SpecialistParentController::class, 'index']);
+        Route::post('/specialist-parent-links', [SpecialistParentController::class, 'store']);
+        Route::delete('/specialist-parent-links/{id}', [SpecialistParentController::class, 'destroy']);
+    });
+
+Route::middleware(['auth:sanctum', 'admin'])
+    ->prefix('admin')
+    ->group(function () {
   // ── Dashboard ──
   // واجهة1 
   Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+
+  //مسارات الأدمن — ربط/فك ربط أخصائي بأهل 
 
   //  Manage Users 
 
@@ -90,18 +109,36 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
   Route::get('/children', [ChildProfileController::class, 'index']);
   Route::get('/children/{childId}/profile', [ChildProfileController::class, 'show']);
 
-  Route::get('children/{childId}/reports/weekly', [ReportController::class, 'weekly']);
-  Route::get('children/{childId}/reports/monthly', [ReportController::class, 'monthly']);
-  Route::get('children/{childId}/reports/chart', [ReportController::class, 'chart']);
+  Route::get('children/{childId}/reports/weekly', [ReportParentController::class, 'weekly']);
+  Route::get('children/{childId}/reports/monthly', [ReportParentController::class, 'monthly']);
+  Route::get('children/{childId}/reports/chart', [ReportParentController::class, 'chart']);
 
   Route::get('children/{childId}/recommendations', [RecommendationController::class, 'index']);
-  Route::post('children/{childId}/recommendations', [RecommendationController::class, 'store']);
-  Route::put('recommendations/{id}', [RecommendationController::class, 'update']);
-  Route::delete('recommendations/{id}', [RecommendationController::class, 'destroy']);
+  // Route::post('children/{childId}/recommendations', [RecommendationController::class, 'store']);
+  // Route::put('recommendations/{id}', [RecommendationController::class, 'update']);
+  // Route::delete('recommendations/{id}', [RecommendationController::class, 'destroy']);
 });
 
-Route::middleware(['auth:sanctum'])->prefix('specialist')->group(function () {
-  Route::get('MyChildren', [SpecialistController::class, 'myChildren']);
-  Route::post('children/{childId}/recommendations', [RecommendationController::class, 'store']);
-  
-});
+Route::middleware(['auth:sanctum', 'specialist'])
+    ->prefix('specialist')
+    ->group(function () {
+        Route::get('/MyChildren', [SpecialistController::class, 'myChildren']);
+  // Route::post('children/{childId}/recommendations', [RecommendationController::class, 'store']);
+
+  // جديد
+      // صفحة "أولادي" تبع الأخصائي — لستة الأولاد يلي بتنكبس عالاسم
+    Route::get('/children', [ChildController::class, 'index']);
+    Route::get('/children/{childId}', [ChildController::class, 'show']);
+
+    // صفحة تقرير الولد (Weekly / Monthly + الرسم البياني)
+    Route::get('/children/{childId}/reports/weekly', [ReportSpecialistController::class, 'weekly']);
+    Route::get('/children/{childId}/reports/monthly', [ReportSpecialistController::class, 'monthly']);
+    Route::get('/children/{childId}/reports/chart', [ReportSpecialistController::class, 'chart']);
+
+    // توصيات الأخصائي
+    Route::get('/children/{childId}/recommendations', [RecommendationController::class, 'index']);
+    Route::post('/children/{childId}/recommendations', [RecommendationController::class, 'store']);
+    Route::put('/recommendations/{id}', [RecommendationController::class, 'update']);
+    Route::delete('/recommendations/{id}', [RecommendationController::class, 'destroy']);
+
+  });
