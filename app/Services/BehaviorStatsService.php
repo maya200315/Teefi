@@ -13,6 +13,13 @@ class BehaviorStatsService
     public const TYPE_REPETITIVE = 3; // سلوك تكراري
     public const TYPE_RESPONSE   = 4; // استجابة
 
+    
+    private const TYPE_LABELS = [
+        self::TYPE_ANGER      => 'نوبة غضب',
+        self::TYPE_POSITIVE   => 'تفاعل إيجابي',
+        self::TYPE_REPETITIVE => 'سلوك تكراري',
+        self::TYPE_RESPONSE   => 'استجابة',
+    ];
     /**
      * بيرجع مصفوفة فيها العدد والنسبة المئوية لكل نوع سلوك خلال فترة معينة.
      * هاي الدالة بتنستخدم لكل من: الرسم البياني، وتوليد الملخص، وأي تقرير مستقبلي.
@@ -46,4 +53,28 @@ class BehaviorStatsService
             'percentages' => $percentages,
         ];
     }
+    /**
+     * بيرجع ملاحظات الأهل (السلوكيات يلي إلها notes) خلال فترة معينة،
+     * الأحدث أولاً. هاي يلي بتنعرض بصفحة تقرير الأخصائي تحت الرسم البياني.
+     *
+     * @return array<int, array{date:string, type:?string, notes:string, author:?string}>
+     */
+    public function getNotes(int $childId, Carbon $start, Carbon $end): array
+    {
+        return Behavior::where('Childid', $childId)
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->whereNotNull('notes')
+            ->where('notes', '!=', '')
+            ->with('user:id,name') // عدّل الأعمدة حسب جدول users عندك
+            ->orderByDesc('date')
+            ->get()
+            ->map(fn (Behavior $behavior) => [
+                'date'   => $behavior->date,
+                'type'   => self::TYPE_LABELS[$behavior->Behavior_typeid] ?? null,
+                'notes'  => $behavior->notes,
+                'author' => $behavior->user?->name,
+            ])
+            ->toArray();
+    }
+
 }
