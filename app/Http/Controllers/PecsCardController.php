@@ -138,4 +138,10 @@ class PecsCardController extends Controller
             'message' => 'PECS Card deleted successfully'
         ], 200);
     }
+
+    public function allCards()
+    {
+        $cards = PecsCard::paginate(20);
+        return response()->json($cards);
+    }
 }

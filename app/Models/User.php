@@ -68,5 +68,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(Parentt::class, 'user_id', 'id');
     }
-
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class, 'Userid');
+    }
 }

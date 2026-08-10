@@ -23,8 +23,7 @@ class DatabaseSeeder extends Seeder
             RecommendationSeeder::class,
             SpecialistSeeder::class,
             ParentSeeder::class,
-            // SuperAdminSeeder::class,
-
+            ComplaintSeeder::class
         ]);
     }
 }
