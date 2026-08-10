@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Child;
 use App\Models\Parentt;
 use App\Models\Specialist;
 use App\Models\User;
@@ -10,7 +11,45 @@ use Illuminate\Http\Request;
 
 class SpecialistParentController extends Controller
 {
+    public function allChildren()
+{
+    $children = Child::with('user')->paginate(20);
+    return response()->json($children);
+}
 
+public function allSpecialists()
+{
+    $specialists = Specialist::with('user')->paginate(20);
+    return response()->json($specialists);
+}
+
+public function childrenForSpecialist($specialistId)
+{
+    $specialist = Specialist::where('user_id', $specialistId)->first();
+
+    if (!$specialist) {
+        return response()->json(['message' => 'This user is not a specialist.'], 404);
+    }
+
+    $parents = $specialist->parentts()->with(['user.children'])->get();
+
+    $children = $parents->flatMap(function ($parentt) {
+        return $parentt->user->children->map(function ($child) use ($parentt) {
+            return [
+                'id'           => $child->id,
+                'name'         => $child->name,
+                'age'          => $child->age,
+                'autism_level' => $child->autism_level,
+                'parent_name'  => $parentt->user->name,
+            ];
+        });
+    })->values();
+
+    return response()->json([
+        'specialist_name' => $specialist->user->name,
+        'children'        => $children,
+    ]);
+}
     // GET /api/admin/specialists
     public function specialists()
     {
@@ -39,10 +78,11 @@ class SpecialistParentController extends Controller
                 'specialist.user:id,name,mobile_number',
                 'user:id,name,mobile_number',
             ])
-            ->when($request->query('specialist_id'), fn ($q, $id) => $q->whereHas(
-                'specialist', fn ($sq) => $sq->where('user_id', $id)
+            ->when($request->query('specialist_id'), fn($q, $id) => $q->whereHas(
+                'specialist',
+                fn($sq) => $sq->where('user_id', $id)
             ))
-            ->when($request->query('parent_id'), fn ($q, $id) => $q->where('user_id', $id))
+            ->when($request->query('parent_id'), fn($q, $id) => $q->where('user_id', $id))
             ->latest()
             ->get();
 

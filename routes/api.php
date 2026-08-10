@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\SpecialistParentController;
+use App\Http\Controllers\SpecialistParentController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BehaviorController;
@@ -21,63 +21,76 @@ use App\Http\Controllers\SpecialistController;
 use App\Http\Controllers\UserArticleController;
 use App\Http\Controllers\UserHomeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\ComplaintParentController;
+
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [LogoutController::class, 'logout']);
 
 //superadmin
-  //مسارات الأدمن — ربط/فك ربط أخصائي بأهل 
-  Route::middleware(['auth:sanctum', 'superadmin'])
-    ->prefix('superadmin')
-    ->group(function () {
-        Route::get('/specialists', [SpecialistParentController::class, 'specialists']);
-        Route::get('/parents', [SpecialistParentController::class, 'parents']);
-        Route::get('/specialist-parent-links', [SpecialistParentController::class, 'index']);
-        Route::post('/specialist-parent-links', [SpecialistParentController::class, 'store']);
-        Route::delete('/specialist-parent-links/{id}', [SpecialistParentController::class, 'destroy']);
-    });
+
+Route::middleware(['auth:sanctum', 'superadmin'])
+  ->prefix('superadmin')
+  ->group(function () {
+
+    // كل الأطفال
+    Route::get('/children', [SpecialistParentController::class, 'allChildren']);
+
+    // كل الأخصائيين
+    Route::get('/specialist', [SpecialistParentController::class, 'allSpecialists']);
+
+    // أولاد أخصائي معيّن
+    Route::get('/specialists/{specialistId}/children', [SpecialistParentController::class, 'childrenForSpecialist']);
+
+    // كل المقالات
+    Route::get('/articles', [ArticleController::class, 'index']);
+    // كل كروت الـ PECS
+    Route::get('/pecs-cards', [PecsCardController::class, 'allCards']);
+
+    //الشكاوي
+    Route::get('/complaints', [ComplaintController::class, 'index']);
+    Route::get('/complaints/{id}', [ComplaintController::class, 'show']);
+  });
 
 Route::middleware(['auth:sanctum', 'admin'])
-    ->prefix('admin')
-    ->group(function () {
-  // ── Dashboard ──
-  // واجهة1 
-  Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+  ->prefix('admin')
+  ->group(function () {
+    // ── Dashboard ──
+    Route::get('/dashboard', [AdminDashboardController::class, 'index']);
 
-  //مسارات الأدمن — ربط/فك ربط أخصائي بأهل 
+    //  Manage Users 
 
-  //  Manage Users 
-
-  Route::get('users/{type}',      [ManageUsersController::class, 'index']);
-  Route::get('users/{type}/{id}', [ManageUsersController::class, 'show']);
-  Route::post('users/{type}',      [ManageUsersController::class, 'store']);
-  Route::put('users/{type}/{id}', [ManageUsersController::class, 'update']);
-  Route::delete('users/{type}/{id}', [ManageUsersController::class, 'destroy']);
+    Route::get('users/{type}',      [ManageUsersController::class, 'index']);
+    Route::get('users/{type}/{id}', [ManageUsersController::class, 'show']);
+    Route::post('users/{type}',      [ManageUsersController::class, 'store']);
+    Route::put('users/{type}/{id}', [ManageUsersController::class, 'update']);
+    Route::delete('users/{type}/{id}', [ManageUsersController::class, 'destroy']);
 
 
-  //  Manage Article
+    //  Manage Article
 
-  Route::get('/articles',         [ArticleController::class, 'index']);
-  Route::get('/articles/{id}',    [ArticleController::class, 'show']);
-  Route::post('/articles',        [ArticleController::class, 'store']);
-  Route::put('/articles/{id}',    [ArticleController::class, 'update']);
-  Route::delete('/articles/{id}', [ArticleController::class, 'destroy']);
+    Route::get('/articles',         [ArticleController::class, 'index']);
+    Route::get('/articles/{id}',    [ArticleController::class, 'show']);
+    Route::post('/articles',        [ArticleController::class, 'store']);
+    Route::put('/articles/{id}',    [ArticleController::class, 'update']);
+    Route::delete('/articles/{id}', [ArticleController::class, 'destroy']);
 
-  // PECS Card Categories  (واحهة 3)
+    // PECS Card Categories  (واحهة 3)
 
-  Route::get('/pecs-card-categories',         [PecsCardCategoryController::class, 'index']);
-  Route::get('/pecs-card-categories/{id}',    [PecsCardCategoryController::class, 'show']);
-  Route::post('/pecs-card-categories',        [PecsCardCategoryController::class, 'store']);
-  Route::put('/pecs-card-categories/{id}',    [PecsCardCategoryController::class, 'update']);
-  Route::delete('/pecs-card-categories/{id}', [PecsCardCategoryController::class, 'destroy']);
+    Route::get('/pecs-card-categories',         [PecsCardCategoryController::class, 'index']);
+    Route::get('/pecs-card-categories/{id}',    [PecsCardCategoryController::class, 'show']);
+    Route::post('/pecs-card-categories',        [PecsCardCategoryController::class, 'store']);
+    Route::put('/pecs-card-categories/{id}',    [PecsCardCategoryController::class, 'update']);
+    Route::delete('/pecs-card-categories/{id}', [PecsCardCategoryController::class, 'destroy']);
 
 
-  // Route::get('/pecs-cards',         [PecsCardController::class, 'index']);
-  Route::get('/pecs-cards/{id}',    [PecsCardController::class, 'show']);
-  Route::post('/pecs-cards',        [PecsCardController::class, 'store']);
-  Route::put('/pecs-cards/{id}',    [PecsCardController::class, 'update']);
-  Route::delete('/pecs-cards/{id}', [PecsCardController::class, 'destroy']);
-});
+    // Route::get('/pecs-cards',         [PecsCardController::class, 'index']);
+    Route::get('/pecs-cards/{id}',    [PecsCardController::class, 'show']);
+    Route::post('/pecs-cards',        [PecsCardController::class, 'store']);
+    Route::put('/pecs-cards/{id}',    [PecsCardController::class, 'update']);
+    Route::delete('/pecs-cards/{id}', [PecsCardController::class, 'destroy']);
+  });
 
 // ----------------------------------------------------------
 // routes/api.php
@@ -117,16 +130,16 @@ Route::middleware(['auth:sanctum'])->prefix('user')->group(function () {
   // Route::post('children/{childId}/recommendations', [RecommendationController::class, 'store']);
   // Route::put('recommendations/{id}', [RecommendationController::class, 'update']);
   // Route::delete('recommendations/{id}', [RecommendationController::class, 'destroy']);
+  Route::post('/complaints', [ComplaintParentController::class, 'store']);
 });
 
 Route::middleware(['auth:sanctum', 'specialist'])
-    ->prefix('specialist')
-    ->group(function () {
-        Route::get('/MyChildren', [SpecialistController::class, 'myChildren']);
-  // Route::post('children/{childId}/recommendations', [RecommendationController::class, 'store']);
+  ->prefix('specialist')
+  ->group(function () {
+    Route::get('/MyChildren', [SpecialistController::class, 'myChildren']);
+    // Route::post('children/{childId}/recommendations', [RecommendationController::class, 'store']);
 
-  // جديد
-      // صفحة "أولادي" تبع الأخصائي — لستة الأولاد يلي بتنكبس عالاسم
+    // صفحة "أولادي" تبع الأخصائي — لستة الأولاد يلي بتنكبس عالاسم
     Route::get('/children', [ChildController::class, 'index']);
     Route::get('/children/{childId}', [ChildController::class, 'show']);
 
@@ -140,5 +153,4 @@ Route::middleware(['auth:sanctum', 'specialist'])
     Route::post('/children/{childId}/recommendations', [RecommendationController::class, 'store']);
     Route::put('/recommendations/{id}', [RecommendationController::class, 'update']);
     Route::delete('/recommendations/{id}', [RecommendationController::class, 'destroy']);
-
   });

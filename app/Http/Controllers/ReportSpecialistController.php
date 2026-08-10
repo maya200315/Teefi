@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\AuthorizesChildAccess;
+use App\Models\Behavior;
 use App\Services\BehaviorStatsService;
 use App\Services\ReportGeneratorService;
 use Illuminate\Http\Request;
@@ -10,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 class ReportSpecialistController extends Controller
 {
-use AuthorizesChildAccess;
+    use AuthorizesChildAccess;
 
     public function __construct(
         private ReportGeneratorService $generator,
