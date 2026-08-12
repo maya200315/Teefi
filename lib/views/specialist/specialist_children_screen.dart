@@ -4,7 +4,7 @@ import '../../providers/SpecialistChildrenProvider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_text_styles.dart';
-import '../auth/login_screen.dart'; // تأكدي من ضبط المسار حسب مجلدات مشروعك
+import '../auth/login_screen.dart';
 
 class SpecialistChildrenScreen extends StatefulWidget {
   const SpecialistChildrenScreen({super.key});
