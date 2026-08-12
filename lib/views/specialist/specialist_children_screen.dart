@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_text_styles.dart';
 import '../auth/login_screen.dart';
+import 'specialist_child_report_screen.dart';
 
 class SpecialistChildrenScreen extends StatefulWidget {
   const SpecialistChildrenScreen({super.key});
@@ -113,7 +114,15 @@ class _SpecialistChildrenScreenState extends State<SpecialistChildrenScreen> {
       padding: const EdgeInsets.only(bottom: 14),
       child: InkWell(
         onTap: () {
-          // TODO: هنربطها بشاشة تفاصيل الطفل لما نجهزها بكرا
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SpecialistChildReportScreen(
+                childId: child.id,
+                childName: child.name,
+              ),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(
