@@ -1,5 +1,3 @@
-
-
 class ReportModel {
   final int childId;
   final DateTime periodStart;
@@ -79,6 +77,35 @@ class ChartDataModel {
       columns: (json['columns'] as List)
           .map((c) => ChartColumn.fromJson(c))
           .toList(),
+    );
+  }
+}
+
+class RecommendationModel {
+  final int id;
+  final String text;
+  final String date;
+  final String specialistName;
+
+  RecommendationModel({
+    required this.id,
+    required this.text,
+    required this.date,
+    required this.specialistName,
+  });
+
+  factory RecommendationModel.fromJson(Map<String, dynamic> json) {
+    String name = '';
+    final user = json['user'];
+    if (user is Map<String, dynamic>) {
+      name = user['name'] ?? '';
+    }
+
+    return RecommendationModel(
+      id: json['id'],
+      text: json['text'] ?? '',
+      date: json['date'] ?? '',
+      specialistName: name,
     );
   }
 }

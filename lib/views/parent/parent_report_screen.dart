@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../providers/report_provider.dart';
 import '../../providers/parent_home_provider.dart';
+import '../../models/report_model.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_text_styles.dart';
 
@@ -83,6 +84,8 @@ class _ParentReportScreenState extends State<ParentReportScreen> {
                 iconColor: Colors.orange,
                 summary: reportProvider.monthlyReport?.summary ?? '',
               ),
+              const SizedBox(height: 16),
+              _buildRecommendationsSection(reportProvider.recommendations),
             ],
           ),
         ),
@@ -293,6 +296,64 @@ class _ParentReportScreenState extends State<ParentReportScreen> {
             ),
           ),
           Icon(icon, color: iconColor),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecommendationsSection(List<RecommendationModel> recommendations) {
+    if (recommendations.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('توصيات الأخصائي', style: AppTextStyles.heading2),
+          const SizedBox(height: 12),
+          ...recommendations.map((rec) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.medical_services_outlined, size: 16, color: AppColors.primary),
+                      const SizedBox(width: 6),
+                      Text(
+                        rec.specialistName.isEmpty ? 'الأخصائي' : rec.specialistName,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    rec.text,
+                    style: AppTextStyles.bodyLarge,
+                    textDirection: TextDirection.rtl,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(rec.date, style: AppTextStyles.bodySmall),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );

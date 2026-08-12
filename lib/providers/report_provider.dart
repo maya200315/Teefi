@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import '../models/report_model.dart';
 import '../services/report_service.dart';
@@ -15,6 +13,7 @@ class ReportProvider extends ChangeNotifier {
   ReportModel? weeklyReport;
   ReportModel? monthlyReport;
   ChartDataModel? chartData;
+  List<RecommendationModel> recommendations = [];
 
   Future<void> loadReports(int childId) async {
     isLoading = true;
@@ -26,11 +25,13 @@ class ReportProvider extends ChangeNotifier {
         _service.getWeeklyReport(childId),
         _service.getMonthlyReport(childId),
         _service.getChartData(childId, selectedPeriod),
+        _service.getRecommendations(childId),
       ]);
 
       weeklyReport = results[0] as ReportModel;
       monthlyReport = results[1] as ReportModel;
       chartData = results[2] as ChartDataModel;
+      recommendations = results[3] as List<RecommendationModel>;
     } catch (e) {
       errorMessage = 'تعذر تحميل التقرير';
     }

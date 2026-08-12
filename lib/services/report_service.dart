@@ -1,5 +1,3 @@
-
-
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/report_model.dart';
@@ -40,5 +38,14 @@ class ReportService {
       options: await _authOptions(),
     );
     return ChartDataModel.fromJson(response.data['data']);
+  }
+
+  Future<List<RecommendationModel>> getRecommendations(int childId) async {
+    final response = await _dio.get(
+      '/user/children/$childId/recommendations',
+      options: await _authOptions(),
+    );
+    final list = response.data['data'] as List;
+    return list.map((r) => RecommendationModel.fromJson(r)).toList();
   }
 }
