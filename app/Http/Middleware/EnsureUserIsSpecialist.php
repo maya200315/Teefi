@@ -14,10 +14,9 @@ class EnsureUserIsSpecialist
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        
-        // تأكد إنو المستخدم موجود ودوره specialist (Roleid = 2)
+
         abort_unless(
-            $user && $user->Roleid === 2,
+            $user && (int) $user->Roleid === 2,
             403,
             'هاد المسار للأخصائيين بس.'
         );

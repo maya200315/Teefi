@@ -17,7 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => \App\Http\Middleware\Authenticate::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'specialist' => \App\Http\Middleware\EnsureUserIsSpecialist::class,
-            'superadmin' => \App\Http\Middleware\EnsureUserIsSuperAdmin::class, // جديد
+            'superadmin' => \App\Http\Middleware\EnsureUserIsSuperAdmin::class, 
+            'parent' => \App\Http\Middleware\EnsureUserIsParent::class, 
 
         ]);
     })
