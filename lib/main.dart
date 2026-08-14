@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:teefi/providers/SpecialistChildrenProvider.dart';
 import 'package:teefi/providers/behavior_provider.dart';
+import 'package:teefi/providers/complaint_provider.dart';
 import 'package:teefi/providers/parent_pecs_provider.dart';
 import 'package:teefi/providers/report_provider.dart';
 import 'package:teefi/providers/specialist_report_provider.dart';
+import 'package:teefi/providers/superadmin_articles_provider.dart';
+import 'package:teefi/providers/superadmin_children_provider.dart';
+import 'package:teefi/providers/superadmin_complaints_provider.dart';
+import 'package:teefi/providers/superadmin_pecs_provider.dart';
+import 'package:teefi/providers/superadmin_specialists_provider.dart';
 import 'package:teefi/views/splash/splash_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/parents_provider.dart';
@@ -41,6 +47,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReportProvider()),
         ChangeNotifierProvider(create: (_) => SpecialistChildrenProvider()),
         ChangeNotifierProvider(create: (_) => SpecialistReportProvider()),
+        ChangeNotifierProvider(create: (_) => SuperAdminSpecialistsProvider()),
+        ChangeNotifierProvider(create: (_) => SuperAdminArticlesProvider()),
+        ChangeNotifierProvider(create: (_) => SuperAdminPecsProvider()),
+        ChangeNotifierProvider(create: (_) => SuperAdminChildrenProvider()),
+        ChangeNotifierProvider(create: (_) => SuperAdminComplaintsProvider()),
+        ChangeNotifierProvider(create: (_) => ComplaintProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

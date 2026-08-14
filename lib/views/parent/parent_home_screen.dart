@@ -7,6 +7,7 @@ import 'package:teefi/views/parent/parent_library_screen.dart';
 import 'package:teefi/views/parent/parent_pecs_screen.dart';
 import 'package:teefi/views/parent/parent_report_screen.dart';
 import 'package:teefi/views/parent/record_behavior_screen.dart';
+import 'package:teefi/views/parent/parent_complaint_screen.dart';
 
 class ParentHomeScreen extends StatefulWidget {
   const ParentHomeScreen({super.key});
@@ -193,50 +194,67 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _quickAction(
-                        icon: Icons.assignment_outlined,
-                        label: 'Behavior',
-                        onTap: ()  => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RecordBehaviorScreen()),
-                  ),
-                      ),
-                      _quickAction(
-                        icon: Icons.bar_chart_outlined,
-                        label: 'Reports',
-                        onTap: () {
-                          Navigator.push(
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _quickAction(
+                          icon: Icons.assignment_outlined,
+                          label: 'Behavior',
+                          onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ParentReportScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _quickAction(
-                        icon: Icons.style_outlined,
-                        label: 'PECS',
-                        onTap: ()  => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) =>
-                              const ParentPecsScreen()),
+                                builder: (_) => const RecordBehaviorScreen()),
+                          ),
                         ),
-                      ),
-                      _quickAction(
-                        icon: Icons.menu_book_outlined,
-                        label: 'Library',
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) =>
-                              const ParentLibraryScreen()),
+                        const SizedBox(width: 12),
+                        _quickAction(
+                          icon: Icons.bar_chart_outlined,
+                          label: 'Reports',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ParentReportScreen(),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 12),
+                        _quickAction(
+                          icon: Icons.style_outlined,
+                          label: 'PECS',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const ParentPecsScreen()),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        _quickAction(
+                          icon: Icons.menu_book_outlined,
+                          label: 'Library',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const ParentLibraryScreen()),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        _quickAction(
+                          icon: Icons.report_problem_outlined,
+                          label: 'Complaint',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ParentComplaintScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

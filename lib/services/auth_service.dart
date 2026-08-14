@@ -30,6 +30,12 @@ class AuthService {
       return {'success': false, 'message': 'Login failed'};
 
     } on DioException catch (e) {
+      print('=== LOGIN ERROR DEBUG ===');
+      print('Status code: ${e.response?.statusCode}');
+      print('Response data: ${e.response?.data}');
+      print('Request data sent: ${e.requestOptions.data}');
+      print('=========================');
+
       if (e.response?.statusCode == 401) {
         return {'success': false, 'message': 'Wrong phone or password'};
       }

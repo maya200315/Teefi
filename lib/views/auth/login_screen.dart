@@ -5,6 +5,7 @@ import 'package:teefi/providers/auth_provider.dart';
 import 'package:teefi/views/parent/parent_home_screen.dart';
 import '../admin/admin_dashboard_screen.dart';
 import '../specialist/specialist_children_screen.dart';
+import '../superadmin/superadmin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -51,6 +52,8 @@ class _LoginScreenState extends State<LoginScreen> {
           destination = const DashboardScreen();
         } else if (roleId == 2) {
           destination = const SpecialistChildrenScreen();
+        } else if (roleId == 4) {
+          destination = const SuperAdminDashboardScreen();
         } else {
           destination = const ParentHomeScreen();
         }
