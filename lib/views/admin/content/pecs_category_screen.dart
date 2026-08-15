@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../providers/pecs_provider.dart';
 import '../../../models/pecs_category_model.dart';
 import 'package:teefi/views/admin/content/add_pecs_screen.dart';
@@ -18,13 +19,32 @@ class PecsCategoryScreen extends StatefulWidget {
 }
 
 class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
+  bool _imagesReady = false;
 
   @override
   void initState() {
     super.initState();
-    // جلب الكاتيجوري مع كارداتها من API
-    Future.microtask(() =>
-        context.read<PecsProvider>().fetchCategory(widget.category.id));
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _imagesReady = false);
+
+    await context.read<PecsProvider>().fetchCategory(widget.category.id);
+
+    if (!mounted) return;
+
+    final cards = context.read<PecsProvider>().selectedCategory?.pecsCards ?? [];
+    final urls = cards
+        .map((c) => c.imageUrl)
+        .where((url) => url.startsWith('http'));
+
+    await Future.wait(
+      urls.map((url) => precacheImage(CachedNetworkImageProvider(url), context)),
+    );
+
+    if (!mounted) return;
+    setState(() => _imagesReady = true);
   }
 
   void _showDeleteDialog(int cardId) {
@@ -45,6 +65,7 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
                 cardId: cardId,
                 categoryId: widget.category.id,
               );
+              if (context.mounted) _loadData();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
@@ -70,7 +91,7 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: provider.isLoading
+      body: (provider.isLoading || !_imagesReady)
           ? const Center(child: CircularProgressIndicator())
           : cards.isEmpty
           ? const Center(
@@ -83,9 +104,9 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
         padding: const EdgeInsets.all(16),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
             childAspectRatio: 0.8,
           ),
           itemCount: cards.length,
@@ -93,21 +114,35 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
             final card = cards[index];
 
             return Container(
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF5B9EF5).withOpacity(0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
                 border: Border.all(color: const Color(0xFFD8E8FA)),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildCardImage(card.imageUrl),
-                  const SizedBox(height: 6),
+                  Expanded(
+                    child: Center(
+                      child: _buildCardImage(card.imageUrl),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Text(
                     card.title,
                     textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2D5F9E),
                     ),
@@ -127,9 +162,7 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
                               ),
                             ),
                           );
-                          if (context.mounted) {
-                            context.read<PecsProvider>().fetchCategory(widget.category.id);
-                          }
+                          if (context.mounted) _loadData();
                         },
                         child: const Icon(Icons.edit, size: 18, color: Color(0xFF5B9EF5)),
                       ),
@@ -161,9 +194,7 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
                   ),
                 ),
               );
-              if (context.mounted) {
-                context.read<PecsProvider>().fetchCategory(widget.category.id);
-              }
+              if (context.mounted) _loadData();
             },
             icon: const Icon(Icons.add),
             label: const Text('Add PECS Card'),
@@ -181,25 +212,34 @@ class _PecsCategoryScreenState extends State<PecsCategoryScreen> {
   }
 
   Widget _buildCardImage(String imageUrl) {
-    print('IMAGE URL: $imageUrl');
     if (imageUrl.startsWith('http')) {
-      return Image.network(
-        imageUrl,
-        width: 60,
-        height: 60,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Icon(
-          Icons.image_not_supported_outlined,
-          size: 40,
-          color: Color(0xFFA0B4D0),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: 110,
+          height: 110,
+          fit: BoxFit.cover,
+          fadeInDuration: Duration.zero,
+          errorWidget: (context, url, error) => const Icon(
+            Icons.image_not_supported_outlined,
+            size: 60,
+            color: Color(0xFFA0B4D0),
+          ),
         ),
       );
     } else if (imageUrl.startsWith('assets/')) {
-      return Image.asset(imageUrl, width: 60, height: 60, fit: BoxFit.cover);
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Image.asset(imageUrl, width: 110, height: 110, fit: BoxFit.cover),
+      );
     } else if (imageUrl.isNotEmpty) {
-      return Image.file(File(imageUrl), width: 60, height: 60, fit: BoxFit.cover);
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Image.file(File(imageUrl), width: 110, height: 110, fit: BoxFit.cover),
+      );
     } else {
-      return const Icon(Icons.image_not_supported_outlined, size: 40, color: Color(0xFFA0B4D0));
+      return const Icon(Icons.image_not_supported_outlined, size: 60, color: Color(0xFFA0B4D0));
     }
   }
 }

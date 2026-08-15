@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/superadmin_pecs_provider.dart';
 import '../../models/superadmin_pecs_card_model.dart';
 import '../../core/app_colors.dart';
@@ -15,12 +16,30 @@ class SuperAdminPecsScreen extends StatefulWidget {
 }
 
 class _SuperAdminPecsScreenState extends State<SuperAdminPecsScreen> {
+  bool _imagesReady = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SuperAdminPecsProvider>().fetchAllPecsCards();
-    });
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _imagesReady = false);
+
+    await context.read<SuperAdminPecsProvider>().fetchAllPecsCards();
+
+    if (!mounted) return;
+
+    final cards = context.read<SuperAdminPecsProvider>().cards;
+    final urls = cards.map((c) => c.imageUrl).where((url) => url.isNotEmpty);
+
+    await Future.wait(
+      urls.map((url) => precacheImage(CachedNetworkImageProvider(url), context)),
+    );
+
+    if (!mounted) return;
+    setState(() => _imagesReady = true);
   }
 
   @override
@@ -33,20 +52,20 @@ class _SuperAdminPecsScreenState extends State<SuperAdminPecsScreen> {
         backgroundColor: AppColors.primary,
         title: const Text('بطاقات PECS', style: TextStyle(color: Colors.white)),
       ),
-      body: provider.isLoading
+      body: (provider.isLoading || !_imagesReady)
           ? const Center(child: CircularProgressIndicator())
           : provider.errorMessage != null
           ? Center(child: Text(provider.errorMessage!))
           : provider.cards.isEmpty
           ? const Center(child: Text('لا توجد بطاقات حالياً'))
           : RefreshIndicator(
-        onRefresh: () => provider.fetchAllPecsCards(),
+        onRefresh: () => _loadData(),
         child: GridView.builder(
           padding: const EdgeInsets.all(16),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            mainAxisSpacing: 14,
-            crossAxisSpacing: 14,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
             childAspectRatio: 0.85,
           ),
           itemCount: provider.cards.length,
@@ -61,44 +80,50 @@ class _SuperAdminPecsScreenState extends State<SuperAdminPecsScreen> {
 
   Widget _buildPecsCard(SuperAdminPecsCardModel card) {
     return Container(
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2)),
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
+        border: Border.all(color: AppColors.cardBorder),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: Center(
               child: card.imageUrl.isNotEmpty
-                  ? Image.network(
-                card.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.primaryLight,
-                  child: const Icon(Icons.broken_image_outlined, color: AppColors.primary),
+                  ? ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: CachedNetworkImage(
+                  imageUrl: card.imageUrl,
+                  width: 110,
+                  height: 110,
+                  fit: BoxFit.cover,
+                  fadeInDuration: Duration.zero,
+                  errorWidget: (context, url, error) => const Icon(
+                    Icons.broken_image_outlined,
+                    size: 60,
+                    color: AppColors.primary,
+                  ),
                 ),
               )
-                  : Container(
-                color: AppColors.primaryLight,
-                child: const Icon(Icons.image_outlined, color: AppColors.primary),
-              ),
+                  : const Icon(Icons.image_outlined, size: 60, color: AppColors.primary),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              card.title,
-              style: AppTextStyles.bodyLarge,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+          const SizedBox(height: 8),
+          Text(
+            card.title,
+            style: AppTextStyles.bodyLarge.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
