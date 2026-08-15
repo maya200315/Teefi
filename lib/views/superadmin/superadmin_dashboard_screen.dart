@@ -18,7 +18,7 @@ class SuperAdminDashboardScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: const Text('لوحة مدير المركز'),
+        title: const Text('مدير المركز'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),

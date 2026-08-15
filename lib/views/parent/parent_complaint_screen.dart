@@ -85,7 +85,7 @@ class _ParentComplaintScreenState extends State<ParentComplaintScreen> {
                     controller: _titleController,
                     textDirection: TextDirection.rtl,
                     decoration: InputDecoration(
-                      hintText: 'مثال: مشكلة بالتطبيق',
+                      hintText: 'المشكلة ',
                       filled: true,
                       fillColor: AppColors.background,
                       border: OutlineInputBorder(
@@ -102,7 +102,7 @@ class _ParentComplaintScreenState extends State<ParentComplaintScreen> {
                     maxLines: 5,
                     textDirection: TextDirection.rtl,
                     decoration: InputDecoration(
-                      hintText: 'اكتبي تفاصيل المشكلة هنا...',
+                      hintText: 'اكتب تفاصيل المشكلة هنا...',
                       filled: true,
                       fillColor: AppColors.background,
                       border: OutlineInputBorder(

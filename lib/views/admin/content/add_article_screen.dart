@@ -150,7 +150,7 @@ class _AddArticleScreenState extends State<AddArticleScreen> {
               keyboardType: TextInputType.multiline, // ✅ تم إضافة هاد
               textInputAction: TextInputAction.newline, // ✅ تم إضافة هاد
               decoration: InputDecoration(
-                hintText: 'اكتبي محتوى المقال هنا...',
+                hintText: 'اكتب محتوى المقال هنا...',
                 hintTextDirection: TextDirection.rtl,
                 hintStyle: const TextStyle(color: Color(0xFFA0B4D0)),
                 filled: true,
