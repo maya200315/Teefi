@@ -5,7 +5,7 @@ import '../models/parent_home_model.dart';
 class ParentHomeService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: "http://10.0.2.2:8000", // بدون /api
+      baseUrl: "https://observant-smile-production-931d.up.railway.app/api", // بدون /api
       headers: {"Accept": "application/json"},
     ),
   );
@@ -17,7 +17,7 @@ class ParentHomeService {
 
     try {
       final response = await _dio.get(
-        "/api/user/home", //  مع /api
+        "/user/home",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       print('HOME DATA: ${response.data}');

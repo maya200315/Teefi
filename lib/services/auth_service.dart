@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final Dio _dio = Dio();
-  final String _baseUrl = 'http://10.0.2.2:8000/api';
+  final String _baseUrl = 'https://observant-smile-production-931d.up.railway.app/api';
 
   Future<Map<String, dynamic>> login(String mobile, String password) async {
     try {

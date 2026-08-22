@@ -6,7 +6,7 @@ import '../models/specialist_report_model.dart';
 import '../models/report_model.dart'; // ChartDataModel
 
 class SpecialistReportService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8000/api'));
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'https://observant-smile-production-931d.up.railway.app/api'));
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

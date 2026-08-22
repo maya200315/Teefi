@@ -6,7 +6,7 @@ import '../models/superadmin_specialist_model.dart';
 import '../models/specialist_children_model.dart'; // لإعادة استخدام SpecialistChildModel
 
 class SuperAdminSpecialistsService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8000/api'));
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'https://observant-smile-production-931d.up.railway.app/api'));
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

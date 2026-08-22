@@ -2,7 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardService {
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: "https://observant-smile-production-931d.up.railway.app/api",
+    ),
+  );
 
   Future<Map<String, dynamic>> getDashboardData() async {
     try {
@@ -10,7 +14,7 @@ class DashboardService {
       final token = prefs.getString('token');
 
       final response = await _dio.get(
-        'http://10.0.2.2:8000/api/admin/dashboard',
+        '/admin/dashboard',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
